@@ -1,2 +1,1 @@
-# datavisz
-Data visualization program
+# WIP - Data Visualization Project 
