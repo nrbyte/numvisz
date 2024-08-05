@@ -33,3 +33,7 @@
 
 # Vim
 *.swp
+
+# CMake
+# Commonly used folder that should not be pushed!
+build/
