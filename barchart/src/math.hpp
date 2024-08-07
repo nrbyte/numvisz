@@ -14,7 +14,7 @@ namespace math
     void put(int row, int col, float value) {
       data[(C*row)+col] = value;
     }
-    float get(int row, int col) {
+    float get(int row, int col) const {
       return data[(C*row)+col];
     }
 
@@ -32,6 +32,12 @@ namespace math
     for (int i = 0; i < X; i++)
       m.put(i, i, 1);
   }
+
+  // Other matrix generators, defined in math.cpp
+  void setOrtho(Matrix<4, 4>& m, float top, float right, float bottom,
+      float left, float near, float far);
+  void setTranslate(Matrix<4, 4>& m, float x, float y, float z);
+  void setScale(Matrix<4, 4>& m, float x, float y, float z);
 };
 
 
@@ -39,7 +45,7 @@ namespace math
 using namespace math;
 
 template <int R, int C, int R1, int C1>
-Matrix<R, C1> operator*(Matrix<R, C>& m1, Matrix<R1, C1>& m2)
+Matrix<R, C1> operator*(const Matrix<R, C>& m1, const Matrix<R1, C1>& m2)
 {
   static_assert(C == R1, "Cannot multiply matrices");
   Matrix<R, C1> result; 
