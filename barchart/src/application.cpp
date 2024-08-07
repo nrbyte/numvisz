@@ -22,9 +22,11 @@ int Application::run()
 
   while (gui.windowStillOpen())
   {
+    // Clear the frame
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    // Tell GUI system we're finished rendering
     gui.nextFrame();
   }
   return 0;
