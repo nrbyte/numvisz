@@ -17,6 +17,10 @@ public:
     return !glfwWindowShouldClose(window);
   }
 
+  // Event state
+  int width, height;
+  double mouseX, mouseY;
+
 private:
   GLFWwindow* window;
 };

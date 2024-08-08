@@ -1,8 +1,17 @@
 #include <stdexcept>
 
-#include <glad/gl.h>
+#include "glad/gl.h"
 
 #include "gui.hpp"
+
+// Callbacks
+static void callback_framebuffer_size(GLFWwindow* window, int width, int height)
+{
+  GUI* gui = static_cast<GUI*>(glfwGetWindowUserPointer(window));
+
+  gui->width = width;
+  gui->height = height;
+}
 
 void GUI::setup(int width, int height, const std::string& title)
 {
@@ -23,12 +32,23 @@ void GUI::setup(int width, int height, const std::string& title)
   gladLoadGL(glfwGetProcAddress);
 
   glfwSwapInterval(1);
+
+  // Correctly set width and height to begin with
+  glfwGetFramebufferSize(window, &this->width, &this->height);
+
+  // Allow callbacks to know which GUI object to modify state on upon call
+  glfwSetWindowUserPointer(window, this);
+  // Register window resize callback
+  glfwSetFramebufferSizeCallback(window, callback_framebuffer_size);
 }
 
 void GUI::nextFrame()
 {
   glfwSwapBuffers(window);
   glfwPollEvents();
+
+  // Update mouse position
+  glfwGetCursorPos(window, &this->mouseX, &this->mouseY);
 }
 
 GUI::~GUI()

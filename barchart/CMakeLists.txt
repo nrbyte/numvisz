@@ -8,10 +8,16 @@ target_sources(barchart PRIVATE
   src/math.cpp
   src/math.hpp
   src/gui.cpp
-  src/gui.hpp)
+  src/gui.hpp
+  src/shader.cpp
+  src/shader.hpp
+)
 
 # For the glad folder
 target_include_directories(barchart PRIVATE src)
+
+# For shaders
+target_include_directories(barchart PRIVATE .)
 
 # Find and include GLFW
 find_package(glfw3)
