@@ -60,7 +60,7 @@ int Application::run()
 
     // Draw a triangle for now
     glUseProgram(shader.getProgram());
-    glUniformMatrix4fv(glGetUniformLocation(shader.getProgram(), "matrix"),
+    glUniformMatrix4fv(shader.getUniformLocation("matrix"),
         1, GL_TRUE, *matrix);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 

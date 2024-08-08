@@ -55,3 +55,16 @@ Shader::Shader(const char* vsSource, const char* fsSource)
   glDeleteShader(vShader);
   glDeleteShader(fShader);
 }
+
+unsigned Shader::getUniformLocation(const std::string& name)
+{
+  // Look for the corresponding uniform location
+  auto it = uniformLocations.find(name);
+  // If found, return it
+  if (it != uniformLocations.end()) {
+    return uniformLocations[name];
+  }
+  // Otherwise, get the uniform location, add it to the map, and then return it
+  uniformLocations[name] = glGetUniformLocation(program, name.c_str());
+  return uniformLocations[name];
+}
