@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <stdexcept>
 
 #define GLAD_GL_IMPLEMENTATION
@@ -5,6 +6,7 @@
 
 #include "application.hpp"
 #include "shader.hpp"
+#include "math.hpp"
 
 int Application::run()
 {
@@ -38,6 +40,16 @@ int Application::run()
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
+  math::Matrix<4, 4> proj;
+  math::Matrix<4, 4> scale;
+  math::Matrix<4, 4> translate;
+  
+  math::setOrtho(proj, 0, 800, 600, 0, -0.1f, -100.0f);
+  math::setScale(scale, 100, 100, 1);
+  math::setTranslate(translate, 100.0f, 100.0f, 0.0f);
+
+  math::Matrix<4, 4> matrix = proj * (translate * scale);
+
   while (gui.windowStillOpen())
   {
     // Clear the frame
@@ -48,6 +60,8 @@ int Application::run()
 
     // Draw a triangle for now
     glUseProgram(shader.getProgram());
+    glUniformMatrix4fv(glGetUniformLocation(shader.getProgram(), "matrix"),
+        1, GL_TRUE, *matrix);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // Tell GUI system we're finished rendering

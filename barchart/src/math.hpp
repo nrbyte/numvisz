@@ -17,6 +17,9 @@ namespace math
     float get(int row, int col) const {
       return data[(C*row)+col];
     }
+    float* operator*() {
+      return &data[0];
+    }
 
     void clear() {
       std::fill(data.begin(), data.end(), 0);
@@ -57,7 +60,7 @@ Matrix<R, C1> operator*(const Matrix<R, C>& m1, const Matrix<R1, C1>& m2)
     for (int c = 0; c < C1; c++)
     {
       // Multiply element-wise and summate
-      int total = 0;
+      float total = 0;
       for (int i = 0; i < R1; i++)
       {
         total +=
