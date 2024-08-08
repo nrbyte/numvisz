@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "glad/gl.h"
+#include "glad/gl.hpp"
 
 #include "gui.hpp"
 
