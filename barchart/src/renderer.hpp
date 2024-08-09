@@ -4,10 +4,13 @@
 #include "shader.hpp"
 #include "math.hpp"
 
+#ifndef STRUCT_COLOR
+#define STRUCT_COLOR
 struct Color
 {
   float r, g, b, a;
 };
+#endif
 
 class Renderer
 {
@@ -25,5 +28,4 @@ private:
   math::Matrix<4, 4> scale;
   math::Matrix<4, 4> result;
 };
-
 #endif

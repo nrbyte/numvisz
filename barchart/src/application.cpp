@@ -10,6 +10,10 @@ int Application::run()
 {
   gui.setup(800, 600, "Visualization");
 
+  // Enable blending in GL
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   math::Matrix<4, 4> proj;
   Renderer renderer;
 
