@@ -1,9 +1,10 @@
 R"(
 #version 330 core
 
-out vec4 color;
+uniform vec4 color;
+out vec4 outColor;
 
 void main() {
-  color = vec4(0.4f, 0.1f, 0.9f, 1.0f);
+  outColor = color;
 }
 )"

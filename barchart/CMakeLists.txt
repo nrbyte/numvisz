@@ -11,6 +11,8 @@ target_sources(barchart PRIVATE
   src/gui.hpp
   src/shader.cpp
   src/shader.hpp
+  src/renderer.cpp
+  src/renderer.hpp
 )
 
 # For the glad folder
