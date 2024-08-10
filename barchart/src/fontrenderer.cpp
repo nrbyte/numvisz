@@ -101,13 +101,54 @@ void FontRenderer::loadFont(const std::string& filePath, int size)
   }
 }
 
+// UTF helper functions
+// utf8_charLength - Get amount of bytes a character is
+static int utf8_charLength(const char* str)
+{
+  unsigned char c = str[0];
+  if (c < 128) return 1;
+
+  if (((0b11100000) & c) == 0b11000000) return 2;
+  if (((0b11110000) & c) == 0b11100000) return 3;
+  if (((0b11111000) & c) == 0b11110000) return 4;
+
+  return -1;
+}
+// Convert UTF8 codepoint into UTF32
+static char32_t utf8ToUtf32(const char* c)
+{
+  char32_t result;
+
+  int length = utf8_charLength(c);
+
+  if (length == 1) result = c[0];
+  if (length == 2)
+    result = (((0b00011111) & c[0]) << 6) | ((0b00111111) & c[1]);
+  if (length == 3)
+    result = (((0b00001111) & c[0]) << 12) | (((0b00111111) & c[1]) << 6)
+      | ((0b00111111) & c[2]);
+  if (length == 4)
+    result = (((0b00000111) & c[0]) << 18) | (((0b00111111) & c[1]) << 12)
+      | (((0b00111111) & c[2]) << 6) | ((0b00111111) & c[3]);
+
+  return result;
+}
 
 void FontRenderer::drawMsg(int x, int y, const std::string& msg,
     math::Matrix<4, 4> projection)
 {
   glUseProgram(fontShader.getProgram());
-  for (char c : msg)
+
+  for (int i = 0; i < msg.length(); )
   {
+    char cStart = msg[i];
+    char32_t c;
+    // Check UTF8 byte length of the character
+    if (utf8_charLength(&msg[i]) > 1) {
+      // Longer than 1 byte, convert to UTF32 before sending Freetype
+      c = utf8ToUtf32(&msg[i]);
+    } else { c = cStart; }
+
     // Check character is loaded in, if not, load it in
     auto it = characterMap.find(c);
     if (it == characterMap.end()) {
@@ -131,6 +172,8 @@ void FontRenderer::drawMsg(int x, int y, const std::string& msg,
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 
+    // Advance the x position and move onto the next character
     x += ch.advanceX;
+    i += utf8_charLength(&cStart);
   }
 }
