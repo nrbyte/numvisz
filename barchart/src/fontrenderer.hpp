@@ -4,6 +4,9 @@
 #include <string>
 #include <unordered_map>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include "math.hpp"
 #include "shader.hpp"
 
@@ -25,13 +28,29 @@ public:
       math::Matrix<4, 4> projection);
 
 private:
+
+  FT_Library library;
+  FT_Face face;
+  struct Character
+  {
+    unsigned textureID;
+    unsigned width, height;
+    unsigned advanceX;
+
+    int bitmap_top, bitmap_left;
+    int bearingY;
+  };
+  int fontHeight;
+
   unsigned VAO, VBO;
   Shader fontShader;
 
-  std::unordered_map<char32_t, unsigned> characterMap;
+  std::unordered_map<char32_t, Character> characterMap;
 
   math::Matrix<4, 4> translate;
   math::Matrix<4, 4> scale;
   math::Matrix<4, 4> result;
+
+  void loadCharacter(char32_t c);
 };
 #endif
