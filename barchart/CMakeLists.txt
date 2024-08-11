@@ -15,6 +15,8 @@ target_sources(barchart PRIVATE
   src/renderer.hpp
   src/fontrenderer.cpp
   src/fontrenderer.hpp
+  src/csvparser.cpp
+  src/csvparser.hpp
 )
 
 # For the glad folder
