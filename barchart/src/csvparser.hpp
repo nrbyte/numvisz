@@ -15,11 +15,11 @@ class CsvParser
 public:
   CsvParser(const std::string& fileName);
 
-  long long getValue(int row, int position) {
-    return rows[row].values[position];
+  const std::vector<std::string>& getCategories() const {
+    return categories;
   }
-  std::string& getCategory(int position) {
-    return categories[position];
+  const std::vector<Row>& getRows() const {
+    return rows;
   }
   std::string& getName() {
     return name;

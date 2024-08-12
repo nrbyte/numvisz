@@ -9,7 +9,7 @@ int main(int argc, char** argv)
   try
   {
     // Parse arguments
-    CommandLineParser parser(argc, argv, {"-csv"});
+    CommandLineParser parser(argc, argv, {"-csv", "-barheight"});
     // Start application with those parsed arguments
     Application app(parser.getArguments());
     return app.run();
