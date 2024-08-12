@@ -2,12 +2,16 @@
 #include <iostream>
 
 #include "application.hpp"
+#include "commandlineparser.hpp"
 
-int main()
+int main(int argc, char** argv)
 {
   try
   {
-    Application app;
+    // Parse arguments
+    CommandLineParser parser(argc, argv, {"-csv"});
+    // Start application with those parsed arguments
+    Application app(parser.getArguments());
     return app.run();
   }
   catch(std::runtime_error e)

@@ -5,6 +5,13 @@
 #include "renderer.hpp"
 #include "math.hpp"
 
+Application::Application(Arguments arg)
+  : args {arg}
+{
+  // TEST
+  std::cout << "-csv = " << arg.get("-csv", "NOT SET") << std::endl;
+}
+
 int Application::run()
 {
   gui.setup(800, 600, "Visualization");
@@ -18,6 +25,7 @@ int Application::run()
 
   while (gui.windowStillOpen())
   {
+
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     // Set viewport size
@@ -26,7 +34,8 @@ int Application::run()
     // Update projection matrix
     math::setOrtho(proj, 0, gui.width, gui.height, 0, -0.1f, -100.0f);
 
-    renderer.drawBox(10, 10, gui.width-10, gui.height-10, Color {0.4f, 0.9f, 0.8f, 1.0f}, proj);
+    renderer.drawBox(10, 10, gui.width-10, gui.height-10,
+        Color {0.4f, 0.9f, 0.8f, 1.0f}, proj);
 
     gui.nextFrame();
   }
