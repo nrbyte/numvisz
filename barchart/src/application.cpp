@@ -53,7 +53,7 @@ int Application::run()
   Renderer renderer;
 
   // Parse the provided CSV
-  const std::string& fileName = args.get("-csv", Arguments::NotSet);
+  const std::string& fileName = args.get("-csv");
   if (fileName == Arguments::NotSet)
     throw std::runtime_error("CSV file name not provided!");
   CsvParser csv(fileName);
@@ -115,7 +115,6 @@ int Application::run()
 
       height += barHeight + 10;
     }
-
 
     gui.nextFrame();
   }

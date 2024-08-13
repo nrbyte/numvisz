@@ -27,7 +27,8 @@ public:
   constexpr static const char* NotSet = "NOT SET";
 
   const std::string& get
-    (const std::string& option, const std::string& defaultValue) const;
+    (const std::string& option,
+     const std::string& defaultValue = Arguments::NotSet) const;
 
   std::shared_ptr<ArgumentMap> argMap;
 };
