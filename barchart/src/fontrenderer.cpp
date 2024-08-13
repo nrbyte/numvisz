@@ -1,7 +1,8 @@
 #include "fontrenderer.hpp"
 
+#include <iomanip>
 #include <stdexcept>
-
+#include <sstream>
 
 #include "glad/gl.hpp"
 
@@ -175,6 +176,22 @@ void FontRenderer::drawMsg(int x, int y, const std::string& msg,
     x += ch.advanceX;
     i += utf8_charLength(&cStart);
   }
+}
+
+void FontRenderer::drawLongDouble(int x, int y, const long double& num,
+    int decimalPoints, math::Matrix<4, 4> projection)
+{
+  static std::ostringstream os;
+  // Clear the currently stored string (if any)
+  os.str("");
+  // Format the number to the system's locale
+  os.imbue(std::locale(""));
+  os << std::fixed;
+  os << std::setprecision(decimalPoints);
+  os << num;
+
+  // Draw the formatted number
+  drawMsg(x, y, os.str(), projection);
 }
 
 int FontRenderer::getWidthOfMsg(const std::string& msg)

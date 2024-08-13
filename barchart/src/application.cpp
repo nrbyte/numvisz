@@ -59,11 +59,13 @@ int Application::run()
   struct {
     unsigned aboveBars = 35;
     unsigned belowBars = 35;
-    unsigned beforeBars = 50;
-    unsigned afterBars = 50;
+    unsigned beforeBars = 30;
+    unsigned afterBars = 30;
   } Spacings;
+  // Padding values
   struct {
-    unsigned aroundRowName = 40;
+    const unsigned aroundRowName = 50;
+    const unsigned aroundRowValue = 30;
   } Paddings;
 
   // Parse the provided CSV
@@ -77,7 +79,7 @@ int Application::run()
   if (fontName == Arguments::NotSet)
     throw std::runtime_error("Font file not provided");
   FontRenderer fontRenderer;
-  fontRenderer.loadFont(fontName, 17);
+  fontRenderer.loadFont(fontName, 16);
 
   // Go through each row, and put in the starting value, and also
   // get the longest row name, for measurements later in the code
@@ -102,7 +104,7 @@ int Application::run()
   unsigned barHeight = std::stoi(args.get("-barheight", 
       std::to_string(
         std::min(
-          50.0,
+          35.0,
           ((gui.height-Spacings.aboveBars-Spacings.belowBars)
            *0.9)/currentValues.size()
         )
@@ -122,23 +124,34 @@ int Application::run()
     // Sort the bars by their values
     std::sort(currentValues.begin(), currentValues.end(),
         [] (const auto& x, const auto& y) {return x.value > y.value;});
+    // Adjust spacing
+    Spacings.afterBars = Paddings.aroundRowValue
+      + fontRenderer.getWidthOfMsg(std::to_string(currentValues.front().value));
 
     long double highestValue = currentValues.front().value;
 
     int height = Spacings.aboveBars;
     for (auto& row : currentValues)
     {
+      // Get the position of the end of the bar
+      int barX2 = ((gui.width - Spacings.afterBars - Spacings.beforeBars)
+          *(row.value/highestValue)) + Spacings.beforeBars;
+
       // Draw the bar as a proportion of the largest bar
       renderer.drawBox(Spacings.beforeBars,
           height, 
-          ((gui.width - Spacings.afterBars - Spacings.beforeBars)
-           *(row.value/highestValue)) + Spacings.beforeBars,
+          barX2,
           height + barHeight,
           row.color, proj);
       // Draw in its title
       fontRenderer.drawMsg(
           Spacings.beforeBars - (Paddings.aroundRowName/2) - fontRenderer.getWidthOfMsg(row.name),
           height, row.name, proj);
+
+      // Draw in the current values
+      fontRenderer.drawLongDouble(
+          barX2 + (Paddings.aroundRowValue/2),
+          height, row.value, 2, proj);
 
       height += barHeight + 10;
     }
