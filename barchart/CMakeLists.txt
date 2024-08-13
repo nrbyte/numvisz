@@ -19,6 +19,8 @@ target_sources(barchart PRIVATE
   src/csvparser.hpp
   src/commandlineparser.cpp
   src/commandlineparser.hpp
+  src/timer.cpp
+  src/timer.hpp
 )
 
 # For the glad folder
