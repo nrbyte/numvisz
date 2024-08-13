@@ -8,6 +8,7 @@
 #include "renderer.hpp"
 #include "math.hpp"
 #include "csvparser.hpp"
+#include "fontrenderer.hpp"
 
 Application::Application(Arguments arg)
   : args {arg}
@@ -52,27 +53,49 @@ int Application::run()
   math::Matrix<4, 4> proj;
   Renderer renderer;
 
-  // Parse the provided CSV
-  const std::string& fileName = args.get("-csv");
-  if (fileName == Arguments::NotSet)
-    throw std::runtime_error("CSV file name not provided!");
-  CsvParser csv(fileName);
-
-  // Go through each row, and put in the starting value
-  std::vector<RowState> currentValues;
-  for (auto& row : csv.getRows())
-    currentValues.push_back({row.name, row.values.front(), Color {1.0f, 1.0f, 1.0f, 1.0f}});
-
-  // Generate colours
-  generateColors(currentValues);
-
   // Temporary placeholder spacings for now
+  // Code below will modify these values based on things like font height
+  // and command line arguments
   struct {
     unsigned aboveBars = 35;
     unsigned belowBars = 35;
     unsigned beforeBars = 50;
     unsigned afterBars = 50;
   } Spacings;
+  struct {
+    unsigned aroundRowName = 40;
+  } Paddings;
+
+  // Parse the provided CSV
+  const std::string& fileName = args.get("-csv");
+  if (fileName == Arguments::NotSet)
+    throw std::runtime_error("CSV file name not provided!");
+  CsvParser csv(fileName);
+
+  // Load the provided font file
+  const std::string& fontName = args.get("-font");
+  if (fontName == Arguments::NotSet)
+    throw std::runtime_error("Font file not provided");
+  FontRenderer fontRenderer;
+  fontRenderer.loadFont(fontName, 17);
+
+  // Go through each row, and put in the starting value, and also
+  // get the longest row name, for measurements later in the code
+  std::vector<RowState> currentValues;
+  std::string longestRowName = "";
+  for (auto& row : csv.getRows())
+  {
+    currentValues.push_back({row.name, row.values.front(),
+        Color {1.0f, 1.0f, 1.0f, 1.0f}});
+    if (row.name.length() > longestRowName.length())
+      longestRowName = row.name;
+  }
+  // Update spacings based on the longestRowName calculated
+  Spacings.beforeBars = Paddings.aroundRowName
+    + fontRenderer.getWidthOfMsg(longestRowName);
+
+  // Generate colours
+  generateColors(currentValues);
 
   // Get height of bars from arguments if set, otherwise use
   // sensible default
@@ -112,6 +135,10 @@ int Application::run()
            *(row.value/highestValue)) + Spacings.beforeBars,
           height + barHeight,
           row.color, proj);
+      // Draw in its title
+      fontRenderer.drawMsg(
+          Spacings.beforeBars - (Paddings.aroundRowName/2) - fontRenderer.getWidthOfMsg(row.name),
+          height, row.name, proj);
 
       height += barHeight + 10;
     }

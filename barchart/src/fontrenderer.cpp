@@ -65,7 +65,7 @@ void FontRenderer::loadCharacter(char32_t c)
       face->glyph->bitmap.rows,
       (unsigned)(face->glyph->advance.x/64),
       face->glyph->bitmap_top, face->glyph->bitmap_left,
-      (int)(face->glyph->metrics.horiBearingY/64)
+      (int)(face->glyph->metrics.horiBearingY/64),
   };
 
   characterMap[c] = character;
@@ -91,8 +91,7 @@ void FontRenderer::loadFont(const std::string& filePath, int size)
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   // Get overall height of font
-  fontHeight = (face->ascender - face->descender) / 64;
-  std::cout << "font height = " << fontHeight << std::endl;
+  fontHeight = face->size->metrics.height / 64;
 
   // Load common characters
   for (unsigned char character = 0; character < 255; character++)
@@ -158,7 +157,7 @@ void FontRenderer::drawMsg(int x, int y, const std::string& msg,
 
     // Setup matrices
     math::setTranslate(translate, x + ch.bitmap_left,
-        (y+(fontHeight - ch.bearingY)),
+        y+(fontHeight-ch.bitmap_top),
         0.0f);
     math::setScale(scale, ch.width, ch.height, 1.0f);
     result = projection * translate * scale;
@@ -176,4 +175,33 @@ void FontRenderer::drawMsg(int x, int y, const std::string& msg,
     x += ch.advanceX;
     i += utf8_charLength(&cStart);
   }
+}
+
+int FontRenderer::getWidthOfMsg(const std::string& msg)
+{
+  int width = 0;
+  for (int i = 0; i < msg.length(); )
+  {
+    char cStart = msg[i];
+    char32_t c;
+    // Check UTF8 byte length of the character
+    if (utf8_charLength(&msg[i]) > 1) {
+      // Longer than 1 byte, convert to UTF32 before sending Freetype
+      c = utf8ToUtf32(&msg[i]);
+    } else { c = cStart; }
+
+    // Check character is loaded in, if not, load it in
+    auto it = characterMap.find(c);
+    if (it == characterMap.end()) {
+      loadCharacter(c);
+    }
+
+    Character& ch = characterMap[c];
+    // And width to total
+    width += ch.advanceX;
+
+    i += utf8_charLength(&cStart);
+  }
+
+  return width;
 }

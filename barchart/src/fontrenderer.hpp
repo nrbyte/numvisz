@@ -27,6 +27,8 @@ public:
   void drawMsg(int x, int y, const std::string& msg,
       math::Matrix<4, 4> projection);
 
+  int getWidthOfMsg(const std::string& msg);
+
 private:
 
   FT_Library library;
