@@ -51,6 +51,7 @@ int Application::run()
   gui.setup(800, 600, "Visualization");
   Renderer renderer;
   FontRenderer fontRenderer;
+  FontRenderer fontRendererLarge;
   // Enable blending in GL
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -69,6 +70,7 @@ int Application::run()
   struct {
     const unsigned aroundRowName = 50;
     const unsigned aroundRowValue = 30;
+    const unsigned aroundTitle = 60;
   } Paddings;
 
   // Parse the provided CSV
@@ -76,12 +78,6 @@ int Application::run()
   if (fileName == Arguments::NotSet)
     throw std::runtime_error("CSV file name not provided!");
   CsvParser csv(fileName);
-
-  // Load the provided font file
-  const std::string& fontName = args.get("-font");
-  if (fontName == Arguments::NotSet)
-    throw std::runtime_error("Font file not provided");
-  fontRenderer.loadFont(fontName, 16);
 
   // Go through each row, and put in the starting value, and also
   // get the longest row name, for measurements later in the code
@@ -94,12 +90,6 @@ int Application::run()
     if (row.name.length() > longestRowName.length())
       longestRowName = row.name;
   }
-  // Update spacings based on the longestRowName calculated
-  Spacings.beforeBars = Paddings.aroundRowName
-    + fontRenderer.getWidthOfMsg(longestRowName);
-
-  // Generate colours
-  generateColors(currentValues);
 
   // Get height of bars from arguments if set, otherwise use
   // sensible default
@@ -113,9 +103,25 @@ int Application::run()
       )
     ));
 
+  // Load the provided font file
+  const std::string& fontName = args.get("-font");
+  if (fontName == Arguments::NotSet)
+    throw std::runtime_error("Font file not provided");
+  fontRenderer.loadFont(fontName, barHeight * 0.35);
+  fontRendererLarge.loadFont(fontName, barHeight*0.6);
+
   // Get time per category from arguments if set, other use
   // sensible default
   Timer::FloatMS timePerBar {std::stoi(args.get("-timepercategory", "2000"))};
+
+  // Update spacings
+  Spacings.beforeBars = Paddings.aroundRowName
+    + fontRenderer.getWidthOfMsg(longestRowName);
+  Spacings.aboveBars = Paddings.aroundTitle +
+    fontRendererLarge.getFontHeight();
+
+  // Generate colours
+  generateColors(currentValues);
 
   // Start the timer and start drawing
   timer.start();
@@ -127,14 +133,27 @@ int Application::run()
     glViewport(0, 0, gui.width, gui.height);
     // Update projection matrix
     math::setOrtho(proj, 0, gui.width, gui.height, 0, -0.1f, -100.0f);
-
-    // 1 - Calculate the current row state (the values for each row)
+    
     auto currentTime = timer.getInMilliseconds();
     float currentPosition = currentTime/timePerBar;
+
     // Don't go past the last category
     bool reachedEnd = false;
     if (currentPosition > csv.getCategories().size()-1)
+    {
       reachedEnd = true;
+      currentPosition = csv.getCategories().size()-1;
+    }
+
+    // 1 - Draw title and category
+    fontRendererLarge.drawMsg(Paddings.aroundTitle, Paddings.aroundTitle*0.3,
+        csv.getName(), proj);
+    fontRendererLarge.drawMsg(gui.width - Paddings.aroundTitle
+        - fontRendererLarge.getWidthOfMsg(csv.getCategories()[int(currentPosition)]),
+        Paddings.aroundTitle*0.3, csv.getCategories()[int(currentPosition)],
+        proj);
+
+    // 2 - Calculate the current row state (the values for each row)
     for (auto& row : csv.getRows())
     {
       long double currentValue = 0.0;
@@ -160,14 +179,14 @@ int Application::run()
         ->value = currentValue;
     }
 
-    // 2 - Sort the bars by their values
+    // 3 - Sort the bars by their values
     std::sort(currentValues.begin(), currentValues.end(),
         [] (const auto& x, const auto& y) {return x.value > y.value;});
-    // 3 - Adjust spacing
+    // 4 - Adjust spacing
     Spacings.afterBars = Paddings.aroundRowValue
       + fontRenderer.getWidthOfMsg(std::to_string(currentValues.front().value));
 
-    // 4 - draw the rows and their surrounding text
+    // 5 - draw the rows and their surrounding text
     long double highestValue = currentValues.front().value;
     int height = Spacings.aboveBars;
     for (auto& row : currentValues)
@@ -184,12 +203,11 @@ int Application::run()
           row.color, proj);
       // Draw in its title
       fontRenderer.drawMsg(
-          Spacings.beforeBars - (Paddings.aroundRowName/2) - fontRenderer.getWidthOfMsg(row.name),
+          Spacings.beforeBars - (Paddings.aroundRowName*0.3) - fontRenderer.getWidthOfMsg(row.name),
           height, row.name, proj);
-
       // Draw in the current values
       fontRenderer.drawLongDouble(
-          barX2 + (Paddings.aroundRowValue/2),
+          barX2 + (Paddings.aroundRowValue*0.5),
           height, row.value, 2, proj);
 
       height += barHeight + 10;

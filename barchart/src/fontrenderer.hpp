@@ -31,6 +31,11 @@ public:
 
   int getWidthOfMsg(const std::string& msg);
 
+  int getFontHeight() const {
+    return fontHeight;
+  }
+
+
 private:
 
   FT_Library library;
