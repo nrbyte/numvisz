@@ -70,7 +70,7 @@ int Application::run()
   struct {
     const unsigned aroundRowName = 50;
     const unsigned aroundRowValue = 30;
-    const unsigned aroundTitle = 60;
+    const unsigned aroundTitle = 80;
   } Paddings;
 
   // Parse the provided CSV
@@ -96,7 +96,7 @@ int Application::run()
   unsigned barHeight = std::stoi(args.get("-barheight", 
       std::to_string(
         std::min(
-          35.0,
+          40.0,
           ((gui.height-Spacings.aboveBars-Spacings.belowBars)
            *0.9)/currentValues.size()
         )
@@ -107,7 +107,7 @@ int Application::run()
   const std::string& fontName = args.get("-font");
   if (fontName == Arguments::NotSet)
     throw std::runtime_error("Font file not provided");
-  fontRenderer.loadFont(fontName, barHeight * 0.35);
+  fontRenderer.loadFont(fontName, barHeight * 0.4);
   fontRendererLarge.loadFont(fontName, barHeight*0.6);
 
   // Get time per category from arguments if set, other use
@@ -146,11 +146,11 @@ int Application::run()
     }
 
     // 1 - Draw title and category
-    fontRendererLarge.drawMsg(Paddings.aroundTitle, Paddings.aroundTitle*0.3,
+    fontRendererLarge.drawMsg(Paddings.aroundTitle, Paddings.aroundTitle/2,
         csv.getName(), proj);
     fontRendererLarge.drawMsg(gui.width - Paddings.aroundTitle
         - fontRendererLarge.getWidthOfMsg(csv.getCategories()[int(currentPosition)]),
-        Paddings.aroundTitle*0.3, csv.getCategories()[int(currentPosition)],
+        Paddings.aroundTitle/2, csv.getCategories()[int(currentPosition)],
         proj);
 
     // 2 - Calculate the current row state (the values for each row)
@@ -189,6 +189,8 @@ int Application::run()
     // 5 - draw the rows and their surrounding text
     long double highestValue = currentValues.front().value;
     int height = Spacings.aboveBars;
+    // Used below to make the font draw in the middle of the bar
+    long fontHeightSpacing = (barHeight - fontRenderer.getFontHeight())/2;
     for (auto& row : currentValues)
     {
       // Get the position of the end of the bar
@@ -204,11 +206,11 @@ int Application::run()
       // Draw in its title
       fontRenderer.drawMsg(
           Spacings.beforeBars - (Paddings.aroundRowName*0.3) - fontRenderer.getWidthOfMsg(row.name),
-          height, row.name, proj);
+          height+fontHeightSpacing, row.name, proj);
       // Draw in the current values
       fontRenderer.drawLongDouble(
           barX2 + (Paddings.aroundRowValue*0.5),
-          height, row.value, 2, proj);
+          height+fontHeightSpacing, row.value, 2, proj);
 
       height += barHeight + 10;
     }

@@ -92,7 +92,9 @@ void FontRenderer::loadFont(const std::string& filePath, int size)
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   // Get overall height of font
-  fontHeight = face->size->metrics.height / 64;
+  yMin = FT_MulFix(face->bbox.yMin, face->size->metrics.y_scale)/64;
+  yMax = FT_MulFix(face->bbox.yMax, face->size->metrics.y_scale)/64;
+  fontHeight = (yMax - yMin);
 
   // Load common characters
   for (unsigned char character = 0; character < 255; character++)
@@ -158,7 +160,7 @@ void FontRenderer::drawMsg(int x, int y, const std::string& msg,
 
     // Setup matrices
     math::setTranslate(translate, x + ch.bitmap_left,
-        y+(fontHeight-ch.bitmap_top),
+        y+(yMax-ch.bitmap_top),
         0.0f);
     math::setScale(scale, ch.width, ch.height, 1.0f);
     result = projection * translate * scale;

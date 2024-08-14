@@ -49,7 +49,10 @@ private:
     int bitmap_top, bitmap_left;
     int bearingY;
   };
+
   int fontHeight;
+  int yMax;
+  int yMin;
 
   unsigned VAO, VBO;
   Shader fontShader;
