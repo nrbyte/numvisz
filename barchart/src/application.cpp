@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <algorithm>
+#include <cmath>
 
 #define GLAD_GL_IMPLEMENTATION
 #include "glad/gl.hpp"
@@ -21,6 +22,9 @@ struct RowState
   std::string name;
   long double value;
   Color color;
+  // To animate the bar moving positions
+  int currentHeight;
+  int heightAim;
 };
 
 // Helper function to generate colors for each row
@@ -186,7 +190,16 @@ int Application::run()
     Spacings.afterBars = Paddings.aroundRowValue
       + fontRenderer.getWidthOfMsg(std::to_string(currentValues.front().value));
 
-    // 5 - draw the rows and their surrounding text
+    // 5 - Update the heights of the rows
+    for (int i = 0; i < currentValues.size(); i++)
+    {
+      RowState& rs = currentValues[i];
+      rs.heightAim = Spacings.aboveBars + (i*(barHeight + 10));
+      if (rs.currentHeight == 0)
+        rs.currentHeight = rs.heightAim;
+    }
+
+    // 6 - draw the rows and their surrounding text
     long double highestValue = currentValues.front().value;
     int height = Spacings.aboveBars;
     // Used below to make the font draw in the middle of the bar
@@ -199,20 +212,27 @@ int Application::run()
 
       // Draw the bar as a proportion of the largest bar
       renderer.drawBox(Spacings.beforeBars,
-          height, 
+          row.currentHeight, 
           barX2,
-          height + barHeight,
+          row.currentHeight + barHeight,
           row.color, proj);
       // Draw in its title
       fontRenderer.drawMsg(
-          Spacings.beforeBars - (Paddings.aroundRowName*0.3) - fontRenderer.getWidthOfMsg(row.name),
-          height+fontHeightSpacing, row.name, proj);
+          Spacings.beforeBars - (Paddings.aroundRowName*0.3)
+          - fontRenderer.getWidthOfMsg(row.name),
+          row.currentHeight+fontHeightSpacing, row.name, proj);
       // Draw in the current values
       fontRenderer.drawLongDouble(
           barX2 + (Paddings.aroundRowValue*0.5),
-          height+fontHeightSpacing, row.value, 2, proj);
+          row.currentHeight+fontHeightSpacing, row.value, 2, proj);
 
-      height += barHeight + 10;
+      // Update the heights
+      int diff = row.heightAim - row.currentHeight;
+      // Make sure numbers like 0.4 and -0.2 are rounded to 1 and
+      // -1 respectively, as by default they'd be truncated to 0 - which will
+      // cause the difference in height to remain and not shrink
+      row.currentHeight +=
+        (diff < 0) ? std::floor(diff/5.0) : std::ceil(diff/5.0);
     }
 
     // Advance to the next frame
