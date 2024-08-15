@@ -30,6 +30,8 @@ public:
     (const std::string& option,
      const std::string& defaultValue = Arguments::NotSet) const;
 
+  int getInt(const std::string& option, int defaultValue) const;
+
   std::shared_ptr<ArgumentMap> argMap;
 };
 

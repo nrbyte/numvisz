@@ -53,3 +53,11 @@ const std::string& Arguments::get
   // Otherwise, return the mapped value
   return (*find).second;
 }
+
+int Arguments::getInt(const std::string& option, int defaultValue) const
+{
+  const std::string& strVal = get(option);
+  if (strVal == Arguments::NotSet)
+    return defaultValue;
+  return std::stoi(strVal);
+}

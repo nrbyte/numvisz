@@ -60,7 +60,6 @@ int Application::run()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
   // Temporary placeholder spacings for now
   // Code below will modify these values based on things like font height
   // and command line arguments
@@ -97,15 +96,9 @@ int Application::run()
 
   // Get height of bars from arguments if set, otherwise use
   // sensible default
-  unsigned barHeight = std::stoi(args.get("-barheight", 
-      std::to_string(
-        std::min(
-          40.0,
-          ((gui.height-Spacings.aboveBars-Spacings.belowBars)
-           *0.9)/currentValues.size()
-        )
-      )
-    ));
+  unsigned barHeight = args.getInt("-barheight",
+      std::min(40.0, ((gui.height - Spacings.aboveBars - Spacings.belowBars)
+          *0.9)/currentValues.size()));
 
   // Load the provided font file
   const std::string& fontName = args.get("-font");
@@ -116,7 +109,7 @@ int Application::run()
 
   // Get time per category from arguments if set, other use
   // sensible default
-  Timer::FloatMS timePerBar {std::stoi(args.get("-timepercategory", "2000"))};
+  Timer::FloatMS timePerBar {args.getInt("-timepercategory", 2000)};
 
   // Update spacings
   Spacings.beforeBars = Paddings.aroundRowName
