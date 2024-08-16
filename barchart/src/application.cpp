@@ -255,6 +255,25 @@ int Application::run()
             1.0f, (currentTime/(csv.getCategories().size()*timePerBar)))),
         gui.height - Spacings.belowBars*0.72,
         csv.getCategories()[currentPosition], proj);
+    // 8 - if mouse is over the timeline control, show the category it is over
+    if (gui.mouseY > (gui.height - Spacings.belowBars*0.90)
+        && gui.mouseY < (gui.height - Spacings.belowBars*0.5)
+        && gui.mouseX > Spacings.beforeControl
+        && gui.mouseX < (gui.width - Spacings.afterControl))
+    {
+      // Get the category hovered over by working out how far along the mouse
+      // is on the time control as a percentage, and multiplying it by the
+      // total amount of categories
+      const std::string& hoverCategory =
+        csv.getCategories()[
+            csv.getCategories().size()
+              *(gui.mouseX - Spacings.beforeControl)/(controlWidth)
+        ];
+      // Draw the category just above the time control
+      fontRenderer.drawMsg(gui.mouseX,
+          gui.height-Spacings.belowBars*0.8-fontRenderer.getFontHeight(),
+          hoverCategory, proj);
+    }
 
     // Advance to the next frame
     gui.nextFrame();
