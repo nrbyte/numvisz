@@ -68,12 +68,16 @@ int Application::run()
     unsigned belowBars = 35;
     unsigned beforeBars = 30;
     unsigned afterBars = 30;
+
+    unsigned beforeControl = 0;
+    unsigned afterControl = 0;
   } Spacings;
   // Padding values
   struct {
     const unsigned aroundRowName = 50;
     const unsigned aroundRowValue = 30;
     const unsigned aroundTitle = 80;
+    const unsigned aroundControl = 80; // Around the time control at the bottom
   } Paddings;
 
   // Parse the provided CSV
@@ -104,7 +108,7 @@ int Application::run()
   const std::string& fontName = args.get("-font");
   if (fontName == Arguments::NotSet)
     throw std::runtime_error("Font file not provided");
-  fontRenderer.loadFont(fontName, barHeight * 0.4);
+  fontRenderer.loadFont(fontName, barHeight * 0.36);
   fontRendererLarge.loadFont(fontName, barHeight*0.6);
 
   // Get time per category from arguments if set, other use
@@ -116,6 +120,13 @@ int Application::run()
     + fontRenderer.getWidthOfMsg(longestRowName);
   Spacings.aboveBars = Paddings.aroundTitle +
     fontRendererLarge.getFontHeight();
+  Spacings.belowBars = Paddings.aroundControl +
+    fontRenderer.getFontHeight();
+
+  Spacings.beforeControl = Paddings.aroundControl +
+    fontRenderer.getWidthOfMsg(csv.getCategories().front());
+  Spacings.afterControl = Paddings.aroundControl +
+    fontRenderer.getWidthOfMsg(csv.getCategories().back());
 
   // Generate colours
   generateColors(currentValues);
@@ -199,6 +210,9 @@ int Application::run()
     long fontHeightSpacing = (barHeight - fontRenderer.getFontHeight())/2;
     for (auto& row : currentValues)
     {
+      if (row.currentHeight + barHeight > (gui.height - Spacings.belowBars))
+        continue;
+
       // Get the position of the end of the bar
       int barX2 = ((gui.width - Spacings.afterBars - Spacings.beforeBars)
           *(row.value/highestValue)) + Spacings.beforeBars;
@@ -227,6 +241,20 @@ int Application::run()
       row.currentHeight +=
         (diff < 0) ? std::floor(diff/5.0) : std::ceil(diff/5.0);
     }
+
+    // 7 - Draw time control
+    float controlX2 = gui.width - Spacings.afterControl;
+    float controlWidth = gui.width - Spacings.beforeControl
+                       - Spacings.afterControl;
+    renderer.drawBox(Spacings.beforeControl,
+        gui.height - Spacings.belowBars*0.8,
+        controlX2, gui.height - Spacings.belowBars*0.75,
+        Color { 0,0,0,1 }, proj);
+    fontRenderer.drawMsg(Spacings.beforeControl
+        + (controlWidth * std::min(
+            1.0f, (currentTime/(csv.getCategories().size()*timePerBar)))),
+        gui.height - Spacings.belowBars*0.72,
+        csv.getCategories()[currentPosition], proj);
 
     // Advance to the next frame
     gui.nextFrame();
