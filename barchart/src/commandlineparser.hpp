@@ -24,7 +24,7 @@ public:
   // This value can never be an argument on its own because there is no
   // quotes around the NOT SET, therefore, the space would split it into
   // 2 seperate arguments
-  constexpr static const char* NotSet = "NOT SET";
+  constexpr static const char* NotSet = "\0";
 
   const std::string& get
     (const std::string& option,
