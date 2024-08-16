@@ -6,13 +6,14 @@
 class Timer
 {
 public:
-  void start();
-
   using FloatMS = std::chrono::duration<float, std::milli>;
+
+  void start();
+  void setTime(FloatMS time);
   FloatMS getInMilliseconds();
 
 private:
-  std::chrono::time_point<std::chrono::steady_clock> startPoint;
+  std::chrono::time_point<std::chrono::steady_clock, FloatMS> startPoint;
 };
 
 #endif

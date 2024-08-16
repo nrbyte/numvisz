@@ -264,15 +264,24 @@ int Application::run()
       // Get the category hovered over by working out how far along the mouse
       // is on the time control as a percentage, and multiplying it by the
       // total amount of categories
+      float percentOfControl = (gui.mouseX-Spacings.beforeControl)/controlWidth;
       const std::string& hoverCategory =
         csv.getCategories()[
-            csv.getCategories().size()
-              *(gui.mouseX - Spacings.beforeControl)/(controlWidth)
+            csv.getCategories().size()*percentOfControl
         ];
       // Draw the category just above the time control
       fontRenderer.drawMsg(gui.mouseX,
           gui.height-Spacings.belowBars*0.8-fontRenderer.getFontHeight(),
           hoverCategory, proj);
+
+      // If the mouse is down, set the time using the percentage calculated
+      // above
+      if (gui.leftMouseDown)
+      {
+        timer.setTime(Timer::FloatMS {
+              (timePerBar*csv.getCategories().size())*percentOfControl
+        });
+      }
     }
 
     // Advance to the next frame
