@@ -12,6 +12,22 @@ static void callback_framebuffer_size(GLFWwindow* window, int width, int height)
   gui->width = width;
   gui->height = height;
 }
+static void callback_mouse_button(GLFWwindow* window, int button, int action,
+    int mods)
+{
+  if (action == GLFW_PRESS)
+  {
+    GUI* gui = static_cast<GUI*>(glfwGetWindowUserPointer(window));
+    if (button == GLFW_MOUSE_BUTTON_LEFT) gui->leftMouseDown = true;
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) gui->rightMouseDown = true;
+  }
+  else if (action == GLFW_RELEASE)
+  {
+    GUI* gui = static_cast<GUI*>(glfwGetWindowUserPointer(window));
+    if (button == GLFW_MOUSE_BUTTON_LEFT) gui->leftMouseDown = false;
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) gui->rightMouseDown = false;
+  }
+}
 
 void GUI::setup(int width, int height, const std::string& title)
 {
@@ -40,6 +56,8 @@ void GUI::setup(int width, int height, const std::string& title)
   glfwSetWindowUserPointer(window, this);
   // Register window resize callback
   glfwSetFramebufferSizeCallback(window, callback_framebuffer_size);
+  // Register mouse input callback
+  glfwSetMouseButtonCallback(window, callback_mouse_button);
 }
 
 void GUI::nextFrame()
