@@ -51,7 +51,7 @@ const std::string& Arguments::get
   if (find == argMap->end())
     return defaultValue;
   // Otherwise, return the mapped value
-  return (*find).second;
+  return find->second;
 }
 
 int Arguments::getInt(const std::string& option, int defaultValue) const

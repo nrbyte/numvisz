@@ -135,6 +135,8 @@ int Application::run()
   timer.start();
   while (gui.windowStillOpen())
   {
+    if (!gui.leftMouseDown) timer.resume();
+
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     // Set viewport size
@@ -256,18 +258,19 @@ int Application::run()
         gui.height - Spacings.belowBars*0.72,
         csv.getCategories()[currentPosition], proj);
     // 8 - if mouse is over the timeline control, show the category it is over
+    float percentOfControl = (gui.mouseX-Spacings.beforeControl)/controlWidth;
     if (gui.mouseY > (gui.height - Spacings.belowBars*0.90)
         && gui.mouseY < (gui.height - Spacings.belowBars*0.5)
         && gui.mouseX > Spacings.beforeControl
         && gui.mouseX < (gui.width - Spacings.afterControl))
     {
       // Get the category hovered over by working out how far along the mouse
-      // is on the time control as a percentage, and multiplying it by the
+      // is on the time control as a percentage (percentOfControl, calculated
+      // above this if statement), and multiplying it by the
       // total amount of categories
-      float percentOfControl = (gui.mouseX-Spacings.beforeControl)/controlWidth;
       const std::string& hoverCategory =
         csv.getCategories()[
-            csv.getCategories().size()*percentOfControl
+            (csv.getCategories().size()-1)*percentOfControl
         ];
       // Draw the category just above the time control
       fontRenderer.drawMsg(gui.mouseX,
@@ -278,10 +281,17 @@ int Application::run()
       // above
       if (gui.leftMouseDown)
       {
-        timer.setTime(Timer::FloatMS {
-              (timePerBar*csv.getCategories().size())*percentOfControl
-        });
+        timer.stop();
       }
+    }
+    // If the timer is stopped, which happens above when the user clicks
+    // on the timeline control, then set the time based on the mouse's X
+    // position
+    if (timer.isStopped()) {
+      timer.setTime(Timer::FloatMS {
+            (timePerBar*csv.getCategories().size())
+              * std::min(1.0f, std::max(0.0f, percentOfControl))
+      });
     }
 
     // Advance to the next frame
