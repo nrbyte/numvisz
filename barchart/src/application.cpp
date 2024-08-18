@@ -135,7 +135,6 @@ int Application::run()
   timer.start();
   while (gui.windowStillOpen())
   {
-    if (!gui.leftMouseDown) timer.resume();
 
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -212,28 +211,28 @@ int Application::run()
     long fontHeightSpacing = (barHeight - fontRenderer.getFontHeight())/2;
     for (auto& row : currentValues)
     {
-      if (row.currentHeight + barHeight > (gui.height - Spacings.belowBars))
-        continue;
+      if (row.currentHeight + barHeight < (gui.height - Spacings.belowBars))
+      {
+        // Get the position of the end of the bar
+        int barX2 = ((gui.width - Spacings.afterBars - Spacings.beforeBars)
+            *(row.value/highestValue)) + Spacings.beforeBars;
 
-      // Get the position of the end of the bar
-      int barX2 = ((gui.width - Spacings.afterBars - Spacings.beforeBars)
-          *(row.value/highestValue)) + Spacings.beforeBars;
-
-      // Draw the bar as a proportion of the largest bar
-      renderer.drawBox(Spacings.beforeBars,
-          row.currentHeight, 
-          barX2,
-          row.currentHeight + barHeight,
-          row.color, proj);
-      // Draw in its title
-      fontRenderer.drawMsg(
-          Spacings.beforeBars - (Paddings.aroundRowName*0.3)
-          - fontRenderer.getWidthOfMsg(row.name),
-          row.currentHeight+fontHeightSpacing, row.name, proj);
-      // Draw in the current values
-      fontRenderer.drawLongDouble(
-          barX2 + (Paddings.aroundRowValue*0.5),
-          row.currentHeight+fontHeightSpacing, row.value, 2, proj);
+        // Draw the bar as a proportion of the largest bar
+        renderer.drawBox(Spacings.beforeBars,
+            row.currentHeight, 
+            barX2,
+            row.currentHeight + barHeight,
+            row.color, proj);
+        // Draw in its title
+        fontRenderer.drawMsg(
+            Spacings.beforeBars - (Paddings.aroundRowName*0.3)
+            - fontRenderer.getWidthOfMsg(row.name),
+            row.currentHeight+fontHeightSpacing, row.name, proj);
+        // Draw in the current values
+        fontRenderer.drawLongDouble(
+            barX2 + (Paddings.aroundRowValue*0.5),
+            row.currentHeight+fontHeightSpacing, row.value, 2, proj);
+      }
 
       // Update the heights
       int diff = row.heightAim - row.currentHeight;
@@ -293,6 +292,9 @@ int Application::run()
               * std::min(1.0f, std::max(0.0f, percentOfControl))
       });
     }
+    // If the user is not holding down their mouse, the timer should not
+    // be stopped
+    if (!gui.leftMouseDown) timer.resume();
 
     // Advance to the next frame
     gui.nextFrame();
