@@ -203,9 +203,38 @@ int Application::run()
       if (rs.currentHeight == 0)
         rs.currentHeight = rs.heightAim;
     }
-
-    // 6 - draw the rows and their surrounding text
     long double highestValue = currentValues.front().value;
+    
+    // 6 - draw background lines to better indicate how the bars are moving
+    // Calculate the values the lines will be at by using log10, therefore,
+    // a value like 35,000 will have lines every 10,000 (through the integer
+    // conversion).
+    long double lineSeperation = std::pow(10, (int)std::log10(highestValue));
+    int amountOfLines = highestValue/lineSeperation;
+    // If there are more than 5 lines, or less than 3 lines, double or half
+    // the distance between the lines respectively
+    if (amountOfLines > 5)
+    {
+      lineSeperation *= 2;
+      amountOfLines = highestValue/lineSeperation;
+    }
+    if (amountOfLines < 3)
+    {
+      lineSeperation /= 2;
+      amountOfLines = highestValue/lineSeperation;
+    }
+    // Draw the lines using the same proportion calculation used to draw bars
+    for (int i = 1; i <= amountOfLines; i++)
+    {
+      long double lineValue = lineSeperation * i;
+      int lineX = ((gui.width - Spacings.afterBars - Spacings.beforeBars)
+          *(lineValue/highestValue)) + Spacings.beforeBars;
+
+      renderer.drawBox(lineX, Spacings.aboveBars - 10, lineX + 2,
+          gui.height - Spacings.belowBars, Color{0,0,0,0.3}, proj);
+    }
+
+    // 7 - draw the rows and their surrounding text
     int height = Spacings.aboveBars;
     // Used below to make the font draw in the middle of the bar
     long fontHeightSpacing = (barHeight - fontRenderer.getFontHeight())/2;
@@ -243,7 +272,7 @@ int Application::run()
         (diff < 0) ? std::floor(diff/5.0) : std::ceil(diff/5.0);
     }
 
-    // 7 - Draw time control
+    // 8 - Draw time control
     float controlX2 = gui.width - Spacings.afterControl;
     float controlWidth = gui.width - Spacings.beforeControl
                        - Spacings.afterControl;
@@ -256,7 +285,9 @@ int Application::run()
             1.0f, (currentTime/(csv.getCategories().size()*timePerBar)))),
         gui.height - Spacings.belowBars*0.72,
         csv.getCategories()[currentPosition], proj);
-    // 8 - if mouse is over the timeline control, show the category it is over
+
+    // 9 - Handle mouse input, draw the category the mouse is over if it is
+    // in range, and handle when the mouse is clicked
     float percentOfControl = (gui.mouseX-Spacings.beforeControl)/controlWidth;
     if (gui.mouseY > (gui.height - Spacings.belowBars*0.90)
         && gui.mouseY < (gui.height - Spacings.belowBars*0.5)
