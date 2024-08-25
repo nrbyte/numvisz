@@ -13,7 +13,7 @@ void Timer::setTime(FloatMS time)
   else
   {
     startPoint = std::chrono::steady_clock::now();
-    startPoint -= time;
+    startPoint -= std::chrono::duration_cast<std::chrono::nanoseconds>(time);
   }
 }
 

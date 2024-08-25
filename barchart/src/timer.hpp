@@ -20,7 +20,7 @@ public:
   }
 
 private:
-  std::chrono::time_point<std::chrono::steady_clock, FloatMS> startPoint;
+  std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> startPoint;
 
   bool stopped = false;
   FloatMS timeStoppedAt;
