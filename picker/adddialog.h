@@ -15,7 +15,8 @@ class AddDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit AddDialog(QWidget* parent = nullptr);
+    explicit AddDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts, QWidget* parent = nullptr);
+    ~AddDialog();
 
 private:
     Ui::AddDialog* ui;
@@ -24,6 +25,8 @@ private:
 
     QString csvPath;
     QString fontPath;
+
+    std::shared_ptr<QMap<QString, QList<QString>>> loadedFonts;
 
     // QDialog interface
 public slots:

@@ -8,9 +8,12 @@
 #include <QFileInfo>
 #include <QStandardPaths>
 
-AddDialog::AddDialog(QWidget* parent)
+#include "fontpickerdialog.h"
+
+AddDialog::AddDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts, QWidget* parent)
     : QDialog{parent}
     , ui(new Ui::AddDialog)
+    , loadedFonts(fonts)
 {
     ui->setupUi(this);
 
@@ -24,6 +27,11 @@ AddDialog::AddDialog(QWidget* parent)
                      this, &AddDialog::chooseFile);
     QObject::connect(ui->fontButton, &QPushButton::clicked,
                      this, &AddDialog::chooseFont);
+}
+
+AddDialog::~AddDialog()
+{
+    delete ui;
 }
 
 void AddDialog::accept()
@@ -54,15 +62,13 @@ void AddDialog::chooseFile()
 
 void AddDialog::chooseFont()
 {
-    QString file = QFileDialog::getOpenFileName(this,
-                                              "Pick a font file",
-                                              QStandardPaths::writableLocation(QStandardPaths::FontsLocation),
-                                                "Font file (*.ttf)",
-                                                nullptr, QFileDialog::DontUseNativeDialog);
-
-    QFileInfo fileInfo(file);
-    ui->fontLabel->setText("You picked: " + fileInfo.fileName());
-    fontPath = file;
+    FontPickerDialog dialog(loadedFonts, this);
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        QFileInfo fileInfo(dialog.selectedFontFile);
+        ui->fontLabel->setText("You picked: " + fileInfo.baseName());
+        fontPath = dialog.selectedFontFile;
+    }
 }
 
 

@@ -16,12 +16,14 @@ set(PROJECT_SOURCES
         visualizationsmodel.h visualizationsmodel.cpp
         visualizationsdao.h   visualizationsdao.cpp
         adddialog.h           adddialog.cpp           adddialog.ui
+        fontpickerdialog.h    fontpickerdialog.cpp    fontpickerdialog.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(picker
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+
     )
 else()
     add_executable(picker
