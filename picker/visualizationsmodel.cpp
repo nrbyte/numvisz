@@ -1,10 +1,11 @@
 #include "visualizationsmodel.h"
 
+#include <iostream>
 
 VisualizationsModel::VisualizationsModel(QObject *parent)
     : QAbstractListModel{parent}
 {
-    viszDao = new VisualizationsDAO(this);
+    viszDao = new VisualizationsDao(this);
 }
 
 int VisualizationsModel::rowCount(const QModelIndex &parent) const

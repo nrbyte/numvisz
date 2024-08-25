@@ -3,13 +3,15 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlDriver>
+#include <QSqlError>
 
 #include <QStandardPaths>
 #include <QDir>
 #include <QMessageBox>
 
+#include <iostream>
 
-VisualizationsDAO::VisualizationsDAO(QObject *parent)
+VisualizationsDao::VisualizationsDao(QObject *parent)
     : QObject{parent}
 {
     // Check the connection hasn't already been made
@@ -38,10 +40,11 @@ VisualizationsDAO::VisualizationsDAO(QObject *parent)
                "name TEXT NOT NULL,"
                "csvPath TEXT NOT NULL,"
                "fontPath TEXT NOT NULL,"
-               "barHeight INTEGER NOT NULL);");
+               "barHeight INTEGER NOT NULL,"
+               "timePerCategory INTEGER NOT NULL);");
 }
 
-QString VisualizationsDAO::getName(int index)
+QString VisualizationsDao::getName(int index)
 {
     // Query the database
     QSqlQuery query(QSqlDatabase::database("visualizations"));
@@ -55,7 +58,7 @@ QString VisualizationsDAO::getName(int index)
     return query.value(0).toString();
 }
 
-int VisualizationsDAO::getRowCount()
+int VisualizationsDao::getRowCount()
 {
     QSqlDatabase db = QSqlDatabase::database("visualizations");
 
@@ -72,6 +75,43 @@ int VisualizationsDAO::getRowCount()
         }
         return query.at() + 1;
     }
+}
+
+void VisualizationsDao::addEntry(const QString &name, const QString &csvPath, const QString& fontPath)
+{
+    QSqlQuery query(QSqlDatabase::database("visualizations"));
+    query.prepare("INSERT INTO Visualizations (name, csvPath, fontPath, barHeight, timePerCategory) "
+                  "VALUES (:name, :csvPath, :fontPath, 35, 1000);");
+
+    query.bindValue(":name", name);
+    query.bindValue(":csvPath", csvPath);
+    query.bindValue(":fontPath", fontPath);
+
+    if (!query.exec()) {
+        std::cerr << query.lastError().driverText().toStdString()
+                  << ", " << query.lastError().databaseText().toStdString()
+                  << std::endl;
+        return;
+    }
+}
+
+VisualizationEntry VisualizationsDao::getEntry(int id)
+{
+    QSqlQuery query(QSqlDatabase::database("visualizations"));
+    query.prepare("SELECT name, csvPath, fontPath, barHeight, timePerCategory FROM Visualizations WHERE id = :id");
+    query.bindValue(":id", id);
+    query.exec();
+
+    // Go to the first result
+    query.next();
+    VisualizationEntry entry = {
+        query.value(0).toString(),
+        query.value(1).toString(),
+        query.value(2).toString(),
+        query.value(3).toInt(),
+        query.value(4).toInt()
+    };
+    return entry;
 }
 
 

@@ -10,13 +10,13 @@ class VisualizationsModel : public QAbstractListModel
 public:
     explicit VisualizationsModel(QObject *parent = nullptr);
 
-    // QAbstractItemModel interface
+    // QAbstractListModel interface
 public:
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
 
 private:
-    VisualizationsDAO* viszDao;
+    VisualizationsDao* viszDao;
 };
 
 #endif // VISUALIZATIONSMODEL_H

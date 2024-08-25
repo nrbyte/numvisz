@@ -19,5 +19,9 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+private slots:
+    void addVisualization();
+    void playVisualization();
 };
 #endif // MAINWINDOW_H
