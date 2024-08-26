@@ -5,6 +5,7 @@
 #include <QModelIndex>
 #include <QProcess>
 #include <QStringList>
+#include <QMessageBox>
 
 #include <QFontDatabase>
 #include <QDirIterator>
@@ -98,6 +99,7 @@ void MainWindow::playVisualization()
 
     // Start the program
     QProcess* process = new QProcess(this);
+    QObject::connect(process, &QProcess::readyReadStandardError, this, &MainWindow::playbackError);
     process->start("./barchart", args);
 }
 
@@ -128,4 +130,20 @@ void MainWindow::viszSelected(const QModelIndex& index)
 
     QFileInfo info(currentlySelected.fontPath);
     ui->fontButton->setText(info.baseName());
+}
+
+void MainWindow::playbackError()
+{
+    // Multiple QProcesses could be connected to this slot, therefore
+    // we need to get the sender
+    QProcess* process = qobject_cast<QProcess*>(QObject::sender());
+    if (process == nullptr) return;
+
+    QString msg = process->readAllStandardError();
+    // Forward the standard error to the user
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Visualization");
+    msgBox.setText(msg);
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.exec();
 }

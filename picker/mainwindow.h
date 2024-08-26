@@ -38,5 +38,7 @@ private slots:
     void changeFont();
 
     void viszSelected(const QModelIndex&);
+
+    void playbackError();
 };
 #endif // MAINWINDOW_H
