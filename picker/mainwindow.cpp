@@ -11,6 +11,7 @@
 #include <QDirIterator>
 
 #include <QStandardPaths>
+#include <QDesktopServices>
 
 #include <iostream>
 
@@ -34,10 +35,12 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->addButton, &QPushButton::clicked, this, &MainWindow::addVisualization);
     QObject::connect(ui->playButton, &QPushButton::clicked, this, &MainWindow::playVisualization);
     QObject::connect(ui->fontButton, &QPushButton::clicked, this, &MainWindow::changeFont);
+    QObject::connect(ui->openCSVButton, &QPushButton::clicked, this, &MainWindow::openCSV);
 
     ui->playButton->setDisabled(true);
     ui->spinBarHeight->setDisabled(true);
     ui->spinTimePerCategory->setDisabled(true);
+    ui->openCSVButton->setDisabled(true);
 
     ui->fontButton->setDisabled(true);
     ui->fontButton->setText("Change Font");
@@ -114,6 +117,11 @@ void MainWindow::changeFont()
     }
 }
 
+void MainWindow::openCSV()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(currentlySelected.csvPath));
+}
+
 void MainWindow::viszSelected(const QModelIndex& index)
 {
     int row = index.row();
@@ -127,6 +135,7 @@ void MainWindow::viszSelected(const QModelIndex& index)
     ui->spinBarHeight->setDisabled(false);
     ui->spinTimePerCategory->setDisabled(false);
     ui->fontButton->setDisabled(false);
+    ui->openCSVButton->setDisabled(false);
 
     QFileInfo info(currentlySelected.fontPath);
     ui->fontButton->setText(info.baseName());

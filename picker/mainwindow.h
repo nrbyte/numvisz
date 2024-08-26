@@ -36,6 +36,7 @@ private slots:
     void addVisualization();
     void playVisualization();
     void changeFont();
+    void openCSV();
 
     void viszSelected(const QModelIndex&);
 
