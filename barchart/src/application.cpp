@@ -197,7 +197,7 @@ int Application::run()
         + fontRenderer.getWidthOfMsg(std::to_string(currentValues.front().value));
     // Only increase the spacing if more space is required
     if (newAfterBarsValue > Spacings.afterBars)
-        Spacings.afterBars = newAfterBarsValue;
+      Spacings.afterBars = newAfterBarsValue;
 
     // 5 - Update the heights of the rows
     for (int i = 0; i < currentValues.size(); i++)
