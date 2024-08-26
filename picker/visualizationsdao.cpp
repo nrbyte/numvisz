@@ -77,6 +77,15 @@ void VisualizationsDao::updateEntry(VisualizationEntry &entry)
     query.exec();
 }
 
+void VisualizationsDao::deleteEntry(VisualizationEntry &entry)
+{
+    QSqlQuery query(QSqlDatabase::database("visualizations"));
+    query.prepare("DELETE FROM Visualizations "
+                  "WHERE id = :id");
+    query.bindValue(":id", entry.id);
+    query.exec();
+}
+
 VisualizationEntry VisualizationsDao::getEntry(int id)
 {
     QSqlQuery query(QSqlDatabase::database("visualizations"));

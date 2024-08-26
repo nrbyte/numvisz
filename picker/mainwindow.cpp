@@ -42,14 +42,9 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->playButton, &QPushButton::clicked, this, &MainWindow::playVisualization);
     QObject::connect(ui->fontButton, &QPushButton::clicked, this, &MainWindow::changeFont);
     QObject::connect(ui->openCSVButton, &QPushButton::clicked, this, &MainWindow::openCSV);
+    QObject::connect(ui->deleteButton, &QPushButton::clicked, this, &MainWindow::deleteEntry);
 
-    ui->playButton->setDisabled(true);
-    ui->spinBarHeight->setDisabled(true);
-    ui->spinTimePerCategory->setDisabled(true);
-    ui->openCSVButton->setDisabled(true);
-
-    ui->fontButton->setDisabled(true);
-    ui->fontButton->setText("Change Font");
+    disableButtons();
 
     // Load fonts available in system directories
     // Group font files by family
@@ -80,6 +75,30 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::disableButtons()
+{
+    ui->playButton->setDisabled(true);
+    ui->spinBarHeight->setDisabled(true);
+    ui->spinTimePerCategory->setDisabled(true);
+    ui->openCSVButton->setDisabled(true);
+    ui->fontButton->setDisabled(true);
+    ui->deleteButton->setDisabled(true);
+
+    ui->spinBarHeight->setValue(35);
+    ui->spinTimePerCategory->setValue(1000);
+    ui->fontButton->setText("Change Font");
+}
+
+void MainWindow::enableButtons()
+{
+    ui->playButton->setDisabled(false);
+    ui->spinBarHeight->setDisabled(false);
+    ui->spinTimePerCategory->setDisabled(false);
+    ui->fontButton->setDisabled(false);
+    ui->openCSVButton->setDisabled(false);
+    ui->deleteButton->setDisabled(false);
 }
 
 void MainWindow::addVisualization()
@@ -129,6 +148,27 @@ void MainWindow::openCSV()
     QDesktopServices::openUrl(QUrl::fromLocalFile(currentlySelected.csvPath));
 }
 
+void MainWindow::deleteEntry()
+{
+    QMessageBox msgBox;
+    msgBox.setText("Are you sure you want to delete this entry?");
+    msgBox.setInformativeText("The CSV file itself will not be deleted");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+
+    if (msgBox.exec() == QMessageBox::Yes)
+    {
+        // Delete the entry in the database
+        viszDao->deleteEntry(currentlySelected);
+        // Update the model
+        QSqlQueryModel* model = qobject_cast<QSqlQueryModel*>(ui->viszList->model());
+        model->setQuery(model->query().lastQuery(), QSqlDatabase::database("visualizations"));
+        // Disable the buttons
+        disableButtons();
+    }
+}
+
 void MainWindow::viszSelected(const QModelIndex& index)
 {
     int row = qobject_cast<QSqlQueryModel*>(ui->viszList->model())
@@ -138,11 +178,7 @@ void MainWindow::viszSelected(const QModelIndex& index)
     ui->spinBarHeight->setValue(currentlySelected.barHeight);
     ui->spinTimePerCategory->setValue(currentlySelected.timePerCategory);
 
-    ui->playButton->setDisabled(false);
-    ui->spinBarHeight->setDisabled(false);
-    ui->spinTimePerCategory->setDisabled(false);
-    ui->fontButton->setDisabled(false);
-    ui->openCSVButton->setDisabled(false);
+    enableButtons();
 
     QFileInfo info(currentlySelected.fontPath);
     ui->fontButton->setText(info.baseName());

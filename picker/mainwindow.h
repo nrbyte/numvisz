@@ -32,11 +32,15 @@ private:
 
     VisualizationEntry currentlySelected;
 
+    void disableButtons();
+    void enableButtons();
+
 private slots:
     void addVisualization();
     void playVisualization();
     void changeFont();
     void openCSV();
+    void deleteEntry();
 
     void viszSelected(const QModelIndex&);
 
