@@ -5,6 +5,7 @@
 
 struct VisualizationEntry
 {
+    int id;
     QString name;
     QString csvPath;
     QString fontPath;
@@ -22,6 +23,7 @@ public:
     int getRowCount();
 
     void addEntry(const QString& name, const QString& csvPath, const QString& fontPath);
+    void updateEntry(VisualizationEntry& entry);
 
     VisualizationEntry getEntry(int id);
 };

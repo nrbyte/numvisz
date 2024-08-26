@@ -26,7 +26,6 @@ FontPickerDialog::FontPickerDialog(std::shared_ptr<QMap<QString, QList<QString>>
 
     QObject::connect(ui->listFamilies, &QListWidget::itemClicked, this, &FontPickerDialog::fontFamilyClicked);
     QObject::connect(ui->listFiles, &QListWidget::itemClicked, this, &FontPickerDialog::fontFileClicked);
-
 }
 
 FontPickerDialog::~FontPickerDialog()

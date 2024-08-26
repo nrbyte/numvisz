@@ -95,21 +95,37 @@ void VisualizationsDao::addEntry(const QString &name, const QString &csvPath, co
     }
 }
 
+void VisualizationsDao::updateEntry(VisualizationEntry &entry)
+{
+    QSqlQuery query(QSqlDatabase::database("visualizations"));
+    query.prepare("UPDATE Visualizations "
+                  "SET name = :name, fontPath = :fontPath, barHeight = :barHeight, timePerCategory = :tPC "
+                  "WHERE id = :id;");
+    query.bindValue(":name", entry.name);
+    query.bindValue(":fontPath", entry.fontPath);
+    query.bindValue(":barHeight", entry.barHeight);
+    query.bindValue(":tPC", entry.timePerCategory);
+    query.bindValue(":id", entry.id);
+
+    query.exec();
+}
+
 VisualizationEntry VisualizationsDao::getEntry(int id)
 {
     QSqlQuery query(QSqlDatabase::database("visualizations"));
-    query.prepare("SELECT name, csvPath, fontPath, barHeight, timePerCategory FROM Visualizations WHERE id = :id");
+    query.prepare("SELECT id, name, csvPath, fontPath, barHeight, timePerCategory FROM Visualizations WHERE id = :id");
     query.bindValue(":id", id);
     query.exec();
 
     // Go to the first result
     query.next();
     VisualizationEntry entry = {
-        query.value(0).toString(),
+        query.value(0).toInt(),
         query.value(1).toString(),
         query.value(2).toString(),
-        query.value(3).toInt(),
-        query.value(4).toInt()
+        query.value(3).toString(),
+        query.value(4).toInt(),
+        query.value(5).toInt()
     };
     return entry;
 }

@@ -16,19 +16,30 @@
 #include "visualizationsmodel.h"
 #include "visualizationsdao.h"
 #include "adddialog.h"
+#include "fontpickerdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , viszDao(new VisualizationsDao(this))
 {
     ui->setupUi(this);
 
     VisualizationsModel* model = new VisualizationsModel(this);
     ui->viszList->setModel(model);
     ui->viszList->setSelectionMode(QAbstractItemView::SingleSelection);
+    QObject::connect(ui->viszList, &QAbstractItemView::clicked, this, &MainWindow::viszSelected);
 
     QObject::connect(ui->addButton, &QPushButton::clicked, this, &MainWindow::addVisualization);
     QObject::connect(ui->playButton, &QPushButton::clicked, this, &MainWindow::playVisualization);
+    QObject::connect(ui->fontButton, &QPushButton::clicked, this, &MainWindow::changeFont);
+
+    ui->playButton->setDisabled(true);
+    ui->spinBarHeight->setDisabled(true);
+    ui->spinTimePerCategory->setDisabled(true);
+
+    ui->fontButton->setDisabled(true);
+    ui->fontButton->setText("Change Font");
 
     // Load fonts available in system directories
     // Group font files by family
@@ -73,22 +84,48 @@ void MainWindow::addVisualization()
 
 void MainWindow::playVisualization()
 {
-    // Fetch the selected visualization
-    VisualizationsDao dao;
-    auto selection = ui->viszList->selectionModel()->selectedRows();
-    if (selection.isEmpty()) return;
-
-    int row = selection.first().row()+1;
-    VisualizationEntry entry = dao.getEntry(row);
+    // Save the current parameters
+    currentlySelected.barHeight = ui->spinBarHeight->value();
+    currentlySelected.timePerCategory = ui->spinTimePerCategory->value();
+    viszDao->updateEntry(currentlySelected);
 
     // Set the arguments to pass to the barchart process
     QStringList args;
-    args << "-csv" << entry.csvPath << "-font" << entry.fontPath
+    args << "-csv" << currentlySelected.csvPath << "-font" << currentlySelected.fontPath
          << "-barheight"
-         << QString::number(entry.barHeight)
-         <<"-timepercategory" << QString::number(entry.timePerCategory);
+         << ui->spinBarHeight->cleanText()
+         << "-timepercategory" << ui->spinTimePerCategory->cleanText();
 
     // Start the program
-    QProcess* process = new QProcess();
+    QProcess* process = new QProcess(this);
     process->start("./barchart", args);
+}
+
+void MainWindow::changeFont()
+{
+    FontPickerDialog fontPicker(loadedFonts);
+    if (fontPicker.exec() == QDialog::Accepted)
+    {
+        currentlySelected.fontPath = fontPicker.selectedFontFile;
+        QFileInfo info(currentlySelected.fontPath);
+        ui->fontButton->setText(info.baseName());
+    }
+}
+
+void MainWindow::viszSelected(const QModelIndex& index)
+{
+    int row = index.row();
+
+    currentlySelected = viszDao->getEntry(row + 1);
+
+    ui->spinBarHeight->setValue(currentlySelected.barHeight);
+    ui->spinTimePerCategory->setValue(currentlySelected.timePerCategory);
+
+    ui->playButton->setDisabled(false);
+    ui->spinBarHeight->setDisabled(false);
+    ui->spinTimePerCategory->setDisabled(false);
+    ui->fontButton->setDisabled(false);
+
+    QFileInfo info(currentlySelected.fontPath);
+    ui->fontButton->setText(info.baseName());
 }
