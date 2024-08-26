@@ -1,6 +1,10 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+#include <QSqlQueryModel>
+#include <QSqlRecord>
+#include <QSqlQuery>
+
 #include <QPushButton>
 #include <QModelIndex>
 #include <QProcess>
@@ -15,7 +19,6 @@
 
 #include <iostream>
 
-#include "visualizationsmodel.h"
 #include "visualizationsdao.h"
 #include "adddialog.h"
 #include "fontpickerdialog.h"
@@ -27,8 +30,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    VisualizationsModel* model = new VisualizationsModel(this);
+    QSqlQueryModel* model = new QSqlQueryModel(this);
+    QSqlQuery query("SELECT id, name FROM Visualizations", QSqlDatabase::database("visualizations"));
+    model->setQuery(query);
     ui->viszList->setModel(model);
+    ui->viszList->setModelColumn(1);
     ui->viszList->setSelectionMode(QAbstractItemView::SingleSelection);
     QObject::connect(ui->viszList, &QAbstractItemView::clicked, this, &MainWindow::viszSelected);
 
@@ -81,8 +87,9 @@ void MainWindow::addVisualization()
     AddDialog* addDialog = new AddDialog(loadedFonts, this);
     if (addDialog->exec() == QDialog::Accepted)
     {
-        // Tell the model the data is updated, it needs to refresh
-        emit ui->viszList->model()->dataChanged(QModelIndex(), QModelIndex());
+        // Let the model know of the new data by re-running the query
+        QSqlQueryModel* model = qobject_cast<QSqlQueryModel*>(ui->viszList->model());
+        model->setQuery(model->query().lastQuery(), QSqlDatabase::database("visualizations"));
     }
 }
 
@@ -124,9 +131,9 @@ void MainWindow::openCSV()
 
 void MainWindow::viszSelected(const QModelIndex& index)
 {
-    int row = index.row();
-
-    currentlySelected = viszDao->getEntry(row + 1);
+    int row = qobject_cast<QSqlQueryModel*>(ui->viszList->model())
+                  ->record(index.row()).value(0).toInt();
+    currentlySelected = viszDao->getEntry(row);
 
     ui->spinBarHeight->setValue(currentlySelected.barHeight);
     ui->spinTimePerCategory->setValue(currentlySelected.timePerCategory);

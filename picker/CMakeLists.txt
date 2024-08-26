@@ -13,7 +13,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp        mainwindow.h            mainwindow.ui
-        visualizationsmodel.h visualizationsmodel.cpp
         visualizationsdao.h   visualizationsdao.cpp
         adddialog.h           adddialog.cpp           adddialog.ui
         fontpickerdialog.h    fontpickerdialog.cpp    fontpickerdialog.ui

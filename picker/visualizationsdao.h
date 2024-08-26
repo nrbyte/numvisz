@@ -19,8 +19,6 @@ class VisualizationsDao : public QObject
 public:
     explicit VisualizationsDao(QObject *parent = nullptr);
 
-    QString getName(int index);
-    int getRowCount();
 
     void addEntry(const QString& name, const QString& csvPath, const QString& fontPath);
     void updateEntry(VisualizationEntry& entry);

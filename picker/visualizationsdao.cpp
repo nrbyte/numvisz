@@ -44,39 +44,6 @@ VisualizationsDao::VisualizationsDao(QObject *parent)
                "timePerCategory INTEGER NOT NULL);");
 }
 
-QString VisualizationsDao::getName(int index)
-{
-    // Query the database
-    QSqlQuery query(QSqlDatabase::database("visualizations"));
-    query.prepare("SELECT name FROM Visualizations WHERE id == :index");
-    query.bindValue(":index", index + 1);
-    query.exec();
-
-    // Fetch the first row only (the ID's are unique)
-    query.next();
-
-    return query.value(0).toString();
-}
-
-int VisualizationsDao::getRowCount()
-{
-    QSqlDatabase db = QSqlDatabase::database("visualizations");
-
-    QSqlQuery query(db);
-    query.exec("SELECT id FROM Visualizations;");
-
-    if (db.driver()->hasFeature(QSqlDriver::QuerySize))
-    {
-        return query.size();
-    } else {
-        // If the table is empty, last() will fail so return 0
-        if (!query.last()) {
-            return 0;
-        }
-        return query.at() + 1;
-    }
-}
-
 void VisualizationsDao::addEntry(const QString &name, const QString &csvPath, const QString& fontPath)
 {
     QSqlQuery query(QSqlDatabase::database("visualizations"));
