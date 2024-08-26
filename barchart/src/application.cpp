@@ -191,9 +191,13 @@ int Application::run()
     // 3 - Sort the bars by their values
     std::sort(currentValues.begin(), currentValues.end(),
         [] (const auto& x, const auto& y) {return x.value > y.value;});
+
     // 4 - Adjust spacing
-    Spacings.afterBars = Paddings.aroundRowValue
-      + fontRenderer.getWidthOfMsg(std::to_string(currentValues.front().value));
+    float newAfterBarsValue = Paddings.aroundRowValue
+        + fontRenderer.getWidthOfMsg(std::to_string(currentValues.front().value));
+    // Only increase the spacing if more space is required
+    if (newAfterBarsValue > Spacings.afterBars)
+        Spacings.afterBars = newAfterBarsValue;
 
     // 5 - Update the heights of the rows
     for (int i = 0; i < currentValues.size(); i++)
