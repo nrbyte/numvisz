@@ -24,9 +24,9 @@ public:
   FontRenderer();
   void loadFont(const std::string& filePath, int size);
 
-  void drawMsg(int x, int y, const std::string& msg,
+  void drawMsg(float x, float y, const std::string& msg,
       math::Matrix<4, 4> projection);
-  void drawLongDouble(int x, int y, const long double& num, int decimalPoints,
+  void drawLongDouble(float x, float y, const long double& num, int decimalPoints,
       math::Matrix<4, 4> projection);
 
   int getWidthOfMsg(const std::string& msg);

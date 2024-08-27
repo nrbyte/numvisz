@@ -38,7 +38,7 @@ Renderer::Renderer()
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 }
 
-void Renderer::drawBox(int x, int y, int x1, int y1, Color color,
+void Renderer::drawBox(float x, float y, float x1, float y1, Color color,
     math::Matrix<4, 4>& projection)
 {
   glUseProgram(rectShader.getProgram());

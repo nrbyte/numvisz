@@ -17,7 +17,7 @@ class Renderer
 public:
   Renderer();
 
-  void drawBox(int x, int y, int x1, int y1, Color color,
+  void drawBox(float x, float y, float x1, float y1, Color color,
       math::Matrix<4, 4>& projection);
 
 private:

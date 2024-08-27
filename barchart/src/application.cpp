@@ -231,7 +231,7 @@ int Application::run()
     for (int i = 1; i <= amountOfLines; i++)
     {
       long double lineValue = lineSeperation * i;
-      int lineX = ((gui.width - Spacings.afterBars - Spacings.beforeBars)
+      float lineX = ((gui.width - Spacings.afterBars - Spacings.beforeBars)
           *(lineValue/highestValue)) + Spacings.beforeBars;
 
       renderer.drawBox(lineX, Spacings.aboveBars - 10, lineX + 2,
@@ -239,7 +239,6 @@ int Application::run()
     }
 
     // 7 - draw the rows and their surrounding text
-    int height = Spacings.aboveBars;
     // Used below to make the font draw in the middle of the bar
     long fontHeightSpacing = (barHeight - fontRenderer.getFontHeight())/2;
     for (auto& row : currentValues)
@@ -247,7 +246,7 @@ int Application::run()
       if (row.currentHeight + barHeight < (gui.height - Spacings.belowBars))
       {
         // Get the position of the end of the bar
-        int barX2 = ((gui.width - Spacings.afterBars - Spacings.beforeBars)
+        float barX2 = ((gui.width - Spacings.afterBars - Spacings.beforeBars)
             *(row.value/highestValue)) + Spacings.beforeBars;
 
         // Draw the bar as a proportion of the largest bar

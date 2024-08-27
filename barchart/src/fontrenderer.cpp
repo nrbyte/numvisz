@@ -136,7 +136,7 @@ static char32_t utf8ToUtf32(const char* c)
   return result;
 }
 
-void FontRenderer::drawMsg(int x, int y, const std::string& msg,
+void FontRenderer::drawMsg(float x, float y, const std::string& msg,
     math::Matrix<4, 4> projection)
 {
   glUseProgram(fontShader.getProgram());
@@ -180,7 +180,7 @@ void FontRenderer::drawMsg(int x, int y, const std::string& msg,
   }
 }
 
-void FontRenderer::drawLongDouble(int x, int y, const long double& num,
+void FontRenderer::drawLongDouble(float x, float y, const long double& num,
     int decimalPoints, math::Matrix<4, 4> projection)
 {
   static std::ostringstream os;
