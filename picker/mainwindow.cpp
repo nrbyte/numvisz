@@ -129,7 +129,7 @@ void MainWindow::playVisualization()
     // Start the program
     QProcess* process = new QProcess(this);
     QObject::connect(process, &QProcess::readyReadStandardError, this, &MainWindow::playbackError);
-    process->start("./barchart", args);
+    process->start(QCoreApplication::applicationDirPath() + "/barchart", args);
 }
 
 void MainWindow::changeFont()
