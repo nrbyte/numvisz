@@ -17,13 +17,11 @@ AddDialog::AddDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts, QWid
 {
     ui->setupUi(this);
 
-    ui->fileLabel->setText("");
-    ui->fontLabel->setText("");
     ui->errorLabel->setText("");
 
     viszDao = new VisualizationsDao(this);
 
-    QObject::connect(ui->chooseButton, &QPushButton::clicked,
+    QObject::connect(ui->fileButton, &QPushButton::clicked,
                      this, &AddDialog::chooseFile);
     QObject::connect(ui->fontButton, &QPushButton::clicked,
                      this, &AddDialog::chooseFont);
@@ -56,7 +54,7 @@ void AddDialog::chooseFile()
     if (file.isEmpty()) return;
 
     QFileInfo fileInfo(file);
-    ui->fileLabel->setText("You picked: " + fileInfo.fileName());
+    ui->fileButton->setText(fileInfo.fileName());
     csvPath = file;
 }
 
@@ -66,7 +64,7 @@ void AddDialog::chooseFont()
     if (dialog.exec() == QDialog::Accepted)
     {
         QFileInfo fileInfo(dialog.selectedFontFile);
-        ui->fontLabel->setText("You picked: " + fileInfo.baseName());
+        ui->fontButton->setText("You picked: " + fileInfo.baseName());
         fontPath = dialog.selectedFontFile;
     }
 }
