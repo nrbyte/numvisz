@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     QStringList fontLocations = QStandardPaths::standardLocations(QStandardPaths::FontsLocation);
     for (auto& path : fontLocations)
     {
-        QDirIterator iter(path);
+        QDirIterator iter(path, QDirIterator::Subdirectories);
         while (iter.hasNext())
         {
             QString filePath = iter.next();
