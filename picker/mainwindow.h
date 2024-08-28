@@ -36,13 +36,21 @@ private:
     void enableButtons();
 
 private slots:
+    // Buttons
     void addVisualization();
     void playVisualization();
     void changeFont();
     void openCSV();
     void deleteEntry();
 
+    // List view selection
     void viszSelected(const QModelIndex&);
+
+    // Menus
+    void menuExit();
+    void helpQt();
+    void helpCsv();
+
 
     void playbackError();
 };

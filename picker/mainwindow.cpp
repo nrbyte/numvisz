@@ -22,6 +22,7 @@
 #include "visualizationsdao.h"
 #include "adddialog.h"
 #include "fontpickerdialog.h"
+#include "csvhelpdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -43,8 +44,11 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->fontButton, &QPushButton::clicked, this, &MainWindow::changeFont);
     QObject::connect(ui->openCSVButton, &QPushButton::clicked, this, &MainWindow::openCSV);
     QObject::connect(ui->deleteButton, &QPushButton::clicked, this, &MainWindow::deleteEntry);
-
     disableButtons();
+
+    QObject::connect(ui->actionExit, &QAction::triggered, this, &MainWindow::menuExit);
+    QObject::connect(ui->actionAbout_Qt, &QAction::triggered, this, &MainWindow::helpQt);
+    QObject::connect(ui->actionCSV_Format, &QAction::triggered, this, &MainWindow::helpCsv);
 
     // Load fonts available in system directories
     // Group font files by family
@@ -182,6 +186,22 @@ void MainWindow::viszSelected(const QModelIndex& index)
 
     QFileInfo info(currentlySelected.fontPath);
     ui->fontButton->setText(info.baseName());
+}
+
+void MainWindow::menuExit()
+{
+    QApplication::quit();
+}
+
+void MainWindow::helpQt()
+{
+    QApplication::aboutQt();
+}
+
+void MainWindow::helpCsv()
+{
+    CsvHelpDialog dialog;
+    dialog.exec();
 }
 
 void MainWindow::playbackError()
