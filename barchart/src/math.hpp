@@ -36,13 +36,12 @@ void setScale(Matrix<4, 4>& m, float x, float y, float z);
 }; // namespace math
 
 // Operator overloads
-using namespace math;
-
 template <int R, int C, int R1, int C1>
-Matrix<R, C1> operator*(const Matrix<R, C>& m1, const Matrix<R1, C1>& m2)
+math::Matrix<R, C1> operator*(const math::Matrix<R, C>& m1,
+                              const math::Matrix<R1, C1>& m2)
 {
     static_assert(C == R1, "Cannot multiply matrices");
-    Matrix<R, C1> result;
+    math::Matrix<R, C1> result;
 
     // for each row in the first matrix
     for (int r = 0; r < R; r++)
@@ -64,7 +63,7 @@ Matrix<R, C1> operator*(const Matrix<R, C>& m1, const Matrix<R1, C1>& m2)
 }
 
 template <int R, int C>
-std::ostream& operator<<(std::ostream& os, Matrix<R, C>& m)
+std::ostream& operator<<(std::ostream& os, math::Matrix<R, C>& m)
 {
     os << "Matrix (" << R << "x" << C << ") [\n";
 
