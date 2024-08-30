@@ -4,7 +4,8 @@
 #include <QDialog>
 #include <QListWidget>
 
-namespace Ui {
+namespace Ui
+{
 class FontPickerDialog;
 }
 
@@ -13,13 +14,15 @@ class FontPickerDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit FontPickerDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts, QWidget *parent = nullptr);
+    explicit FontPickerDialog(
+        std::shared_ptr<QMap<QString, QList<QString>>>& fonts,
+        QWidget* parent = nullptr);
     ~FontPickerDialog();
 
     QString selectedFontFile;
 
 private:
-    Ui::FontPickerDialog *ui;
+    Ui::FontPickerDialog* ui;
     std::shared_ptr<QMap<QString, QList<QString>>> loadedFonts;
 
 private slots:

@@ -3,7 +3,8 @@
 
 #include <QDialog>
 
-namespace Ui {
+namespace Ui
+{
 class CsvHelpDialog;
 }
 
@@ -12,11 +13,11 @@ class CsvHelpDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CsvHelpDialog(QWidget *parent = nullptr);
+    explicit CsvHelpDialog(QWidget* parent = nullptr);
     ~CsvHelpDialog();
 
 private:
-    Ui::CsvHelpDialog *ui;
+    Ui::CsvHelpDialog* ui;
 };
 
 #endif // CSVHELPDIALOG_H

@@ -10,10 +10,9 @@
 
 #include "fontpickerdialog.h"
 
-AddDialog::AddDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts, QWidget* parent)
-    : QDialog{parent}
-    , ui(new Ui::AddDialog)
-    , loadedFonts(fonts)
+AddDialog::AddDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts,
+                     QWidget* parent)
+    : QDialog{parent}, ui(new Ui::AddDialog), loadedFonts(fonts)
 {
     ui->setupUi(this);
 
@@ -21,21 +20,19 @@ AddDialog::AddDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts, QWid
 
     viszDao = new VisualizationsDao(this);
 
-    QObject::connect(ui->fileButton, &QPushButton::clicked,
-                     this, &AddDialog::chooseFile);
-    QObject::connect(ui->fontButton, &QPushButton::clicked,
-                     this, &AddDialog::chooseFont);
+    QObject::connect(ui->fileButton, &QPushButton::clicked, this,
+                     &AddDialog::chooseFile);
+    QObject::connect(ui->fontButton, &QPushButton::clicked, this,
+                     &AddDialog::chooseFont);
 }
 
-AddDialog::~AddDialog()
-{
-    delete ui;
-}
+AddDialog::~AddDialog() { delete ui; }
 
 void AddDialog::accept()
 {
     QString name = ui->nameEdit->text();
-    if (name.isEmpty() || csvPath.isEmpty() || fontPath.isEmpty()) {
+    if (name.isEmpty() || csvPath.isEmpty() || fontPath.isEmpty())
+    {
         ui->errorLabel->setText("Please enter all fields");
         return;
     }
@@ -47,11 +44,10 @@ void AddDialog::accept()
 
 void AddDialog::chooseFile()
 {
-    QString file = QFileDialog::getOpenFileName(this,
-                                 "Open CSV",
-                                 "",
-                                 "CSV File (*.csv)");
-    if (file.isEmpty()) return;
+    QString file =
+        QFileDialog::getOpenFileName(this, "Open CSV", "", "CSV File (*.csv)");
+    if (file.isEmpty())
+        return;
 
     QFileInfo fileInfo(file);
     ui->fileButton->setText(fileInfo.fileName());
@@ -68,5 +64,3 @@ void AddDialog::chooseFont()
         fontPath = dialog.selectedFontFile;
     }
 }
-
-

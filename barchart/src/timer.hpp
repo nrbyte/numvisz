@@ -6,24 +6,23 @@
 class Timer
 {
 public:
-  using FloatMS = std::chrono::duration<float, std::milli>;
+    using FloatMS = std::chrono::duration<float, std::milli>;
 
-  void start();
-  void setTime(FloatMS time);
-  FloatMS getInMilliseconds();
+    void start();
+    void setTime(FloatMS time);
+    FloatMS getInMilliseconds();
 
-  void stop();
-  void resume();
+    void stop();
+    void resume();
 
-  bool isStopped() {
-    return stopped;
-  }
+    bool isStopped() { return stopped; }
 
 private:
-  std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> startPoint;
+    std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>
+        startPoint;
 
-  bool stopped = false;
-  FloatMS timeStoppedAt;
+    bool stopped = false;
+    FloatMS timeStoppedAt;
 };
 
 #endif

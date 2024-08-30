@@ -8,24 +8,24 @@
 #define STRUCT_COLOR
 struct Color
 {
-  float r, g, b, a;
+    float r, g, b, a;
 };
 #endif
 
 class Renderer
 {
 public:
-  Renderer();
+    Renderer();
 
-  void drawBox(float x, float y, float x1, float y1, Color color,
-      math::Matrix<4, 4>& projection);
+    void drawBox(float x, float y, float x1, float y1, Color color,
+                 math::Matrix<4, 4>& projection);
 
 private:
-  unsigned VAO, VBO;
-  Shader rectShader;
+    unsigned VAO, VBO;
+    Shader rectShader;
 
-  math::Matrix<4, 4> translate;
-  math::Matrix<4, 4> scale;
-  math::Matrix<4, 4> result;
+    math::Matrix<4, 4> translate;
+    math::Matrix<4, 4> scale;
+    math::Matrix<4, 4> result;
 };
 #endif

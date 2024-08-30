@@ -17,9 +17,10 @@ class VisualizationsDao : public QObject
 {
     Q_OBJECT
 public:
-    explicit VisualizationsDao(QObject *parent = nullptr);
+    explicit VisualizationsDao(QObject* parent = nullptr);
 
-    void addEntry(const QString& name, const QString& csvPath, const QString& fontPath);
+    void addEntry(const QString& name, const QString& csvPath,
+                  const QString& fontPath);
     void updateEntry(VisualizationEntry& entry);
     void deleteEntry(VisualizationEntry& entry);
 

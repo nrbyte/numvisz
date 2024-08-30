@@ -7,10 +7,9 @@
 
 #include <iostream>
 
-FontPickerDialog::FontPickerDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts, QWidget *parent)
-    : QDialog(parent)
-    , ui(new Ui::FontPickerDialog)
-    , loadedFonts(fonts)
+FontPickerDialog::FontPickerDialog(
+    std::shared_ptr<QMap<QString, QList<QString>>>& fonts, QWidget* parent)
+    : QDialog(parent), ui(new Ui::FontPickerDialog), loadedFonts(fonts)
 {
     ui->setupUi(this);
 
@@ -24,14 +23,13 @@ FontPickerDialog::FontPickerDialog(std::shared_ptr<QMap<QString, QList<QString>>
         ui->listFamilies->addItem(it.key());
     }
 
-    QObject::connect(ui->listFamilies, &QListWidget::itemClicked, this, &FontPickerDialog::fontFamilyClicked);
-    QObject::connect(ui->listFiles, &QListWidget::itemClicked, this, &FontPickerDialog::fontFileClicked);
+    QObject::connect(ui->listFamilies, &QListWidget::itemClicked, this,
+                     &FontPickerDialog::fontFamilyClicked);
+    QObject::connect(ui->listFiles, &QListWidget::itemClicked, this,
+                     &FontPickerDialog::fontFileClicked);
 }
 
-FontPickerDialog::~FontPickerDialog()
-{
-    delete ui;
-}
+FontPickerDialog::~FontPickerDialog() { delete ui; }
 
 void FontPickerDialog::fontFamilyClicked(QListWidgetItem* item)
 {
@@ -45,7 +43,8 @@ void FontPickerDialog::fontFamilyClicked(QListWidgetItem* item)
         ui->listFiles->addItem(info.baseName());
     }
 
-    // Disable the OK button, as it might have already been enabled from clicking a previous font file
+    // Disable the OK button, as it might have already been enabled from
+    // clicking a previous font file
     ui->buttonBox->button(QDialogButtonBox::Ok)->setDisabled(true);
 }
 

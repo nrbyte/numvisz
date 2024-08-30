@@ -8,13 +8,13 @@
 class Application
 {
 public:
-  Application(Arguments args);
+    Application(Arguments args);
 
-  int run();
+    int run();
 
 private:
-  Arguments args;
-  GUI gui;
+    Arguments args;
+    GUI gui;
 };
 
 #endif

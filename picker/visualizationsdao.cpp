@@ -11,17 +11,18 @@
 
 #include <iostream>
 
-VisualizationsDao::VisualizationsDao(QObject *parent)
-    : QObject{parent}
+VisualizationsDao::VisualizationsDao(QObject* parent) : QObject{parent}
 {
     // Check the connection hasn't already been made
     QSqlDatabase db = QSqlDatabase::database("visualizations");
-    if (db.isValid()) {
+    if (db.isValid())
+    {
         return;
     }
     // Create and open the database connection
     db = QSqlDatabase::addDatabase("QSQLITE", "visualizations");
-    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString dbPath =
+        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(dbPath);
     db.setDatabaseName(dbPath + "/data.db");
     if (!db.open())
@@ -44,29 +45,33 @@ VisualizationsDao::VisualizationsDao(QObject *parent)
                "timePerCategory INTEGER NOT NULL);");
 }
 
-void VisualizationsDao::addEntry(const QString &name, const QString &csvPath, const QString& fontPath)
+void VisualizationsDao::addEntry(const QString& name, const QString& csvPath,
+                                 const QString& fontPath)
 {
     QSqlQuery query(QSqlDatabase::database("visualizations"));
-    query.prepare("INSERT INTO Visualizations (name, csvPath, fontPath, barHeight, timePerCategory) "
+    query.prepare("INSERT INTO Visualizations (name, csvPath, fontPath, "
+                  "barHeight, timePerCategory) "
                   "VALUES (:name, :csvPath, :fontPath, 35, 1000);");
 
     query.bindValue(":name", name);
     query.bindValue(":csvPath", csvPath);
     query.bindValue(":fontPath", fontPath);
 
-    if (!query.exec()) {
-        std::cerr << query.lastError().driverText().toStdString()
-                  << ", " << query.lastError().databaseText().toStdString()
+    if (!query.exec())
+    {
+        std::cerr << query.lastError().driverText().toStdString() << ", "
+                  << query.lastError().databaseText().toStdString()
                   << std::endl;
         return;
     }
 }
 
-void VisualizationsDao::updateEntry(VisualizationEntry &entry)
+void VisualizationsDao::updateEntry(VisualizationEntry& entry)
 {
     QSqlQuery query(QSqlDatabase::database("visualizations"));
     query.prepare("UPDATE Visualizations "
-                  "SET name = :name, fontPath = :fontPath, barHeight = :barHeight, timePerCategory = :tPC "
+                  "SET name = :name, fontPath = :fontPath, barHeight = "
+                  ":barHeight, timePerCategory = :tPC "
                   "WHERE id = :id;");
     query.bindValue(":name", entry.name);
     query.bindValue(":fontPath", entry.fontPath);
@@ -77,7 +82,7 @@ void VisualizationsDao::updateEntry(VisualizationEntry &entry)
     query.exec();
 }
 
-void VisualizationsDao::deleteEntry(VisualizationEntry &entry)
+void VisualizationsDao::deleteEntry(VisualizationEntry& entry)
 {
     QSqlQuery query(QSqlDatabase::database("visualizations"));
     query.prepare("DELETE FROM Visualizations "
@@ -89,21 +94,16 @@ void VisualizationsDao::deleteEntry(VisualizationEntry &entry)
 VisualizationEntry VisualizationsDao::getEntry(int id)
 {
     QSqlQuery query(QSqlDatabase::database("visualizations"));
-    query.prepare("SELECT id, name, csvPath, fontPath, barHeight, timePerCategory FROM Visualizations WHERE id = :id");
+    query.prepare("SELECT id, name, csvPath, fontPath, barHeight, "
+                  "timePerCategory FROM Visualizations WHERE id = :id");
     query.bindValue(":id", id);
     query.exec();
 
     // Go to the first result
     query.next();
     VisualizationEntry entry = {
-        query.value(0).toInt(),
-        query.value(1).toString(),
-        query.value(2).toString(),
-        query.value(3).toString(),
-        query.value(4).toInt(),
-        query.value(5).toInt()
-    };
+        query.value(0).toInt(),    query.value(1).toString(),
+        query.value(2).toString(), query.value(3).toString(),
+        query.value(4).toInt(),    query.value(5).toInt()};
     return entry;
 }
-
-

@@ -24,36 +24,46 @@
 #include "fontpickerdialog.h"
 #include "csvhelpdialog.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-    , viszDao(new VisualizationsDao(this))
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow),
+      viszDao(new VisualizationsDao(this))
 {
     ui->setupUi(this);
 
     QSqlQueryModel* model = new QSqlQueryModel(this);
-    QSqlQuery query("SELECT id, name FROM Visualizations", QSqlDatabase::database("visualizations"));
+    QSqlQuery query("SELECT id, name FROM Visualizations",
+                    QSqlDatabase::database("visualizations"));
     model->setQuery(query);
     ui->viszList->setModel(model);
     ui->viszList->setModelColumn(1);
     ui->viszList->setSelectionMode(QAbstractItemView::SingleSelection);
-    QObject::connect(ui->viszList, &QAbstractItemView::clicked, this, &MainWindow::viszSelected);
+    QObject::connect(ui->viszList, &QAbstractItemView::clicked, this,
+                     &MainWindow::viszSelected);
 
-    QObject::connect(ui->addButton, &QPushButton::clicked, this, &MainWindow::addVisualization);
-    QObject::connect(ui->playButton, &QPushButton::clicked, this, &MainWindow::playVisualization);
-    QObject::connect(ui->fontButton, &QPushButton::clicked, this, &MainWindow::changeFont);
-    QObject::connect(ui->openCSVButton, &QPushButton::clicked, this, &MainWindow::openCSV);
-    QObject::connect(ui->deleteButton, &QPushButton::clicked, this, &MainWindow::deleteEntry);
+    QObject::connect(ui->addButton, &QPushButton::clicked, this,
+                     &MainWindow::addVisualization);
+    QObject::connect(ui->playButton, &QPushButton::clicked, this,
+                     &MainWindow::playVisualization);
+    QObject::connect(ui->fontButton, &QPushButton::clicked, this,
+                     &MainWindow::changeFont);
+    QObject::connect(ui->openCSVButton, &QPushButton::clicked, this,
+                     &MainWindow::openCSV);
+    QObject::connect(ui->deleteButton, &QPushButton::clicked, this,
+                     &MainWindow::deleteEntry);
     disableButtons();
 
-    QObject::connect(ui->actionExit, &QAction::triggered, this, &MainWindow::menuExit);
-    QObject::connect(ui->actionAbout_Qt, &QAction::triggered, this, &MainWindow::helpQt);
-    QObject::connect(ui->actionCSV_Format, &QAction::triggered, this, &MainWindow::helpCsv);
+    QObject::connect(ui->actionExit, &QAction::triggered, this,
+                     &MainWindow::menuExit);
+    QObject::connect(ui->actionAbout_Qt, &QAction::triggered, this,
+                     &MainWindow::helpQt);
+    QObject::connect(ui->actionCSV_Format, &QAction::triggered, this,
+                     &MainWindow::helpCsv);
 
     // Load fonts available in system directories
     // Group font files by family
     loadedFonts = std::make_shared<QMap<QString, QList<QString>>>();
-    QStringList fontLocations = QStandardPaths::standardLocations(QStandardPaths::FontsLocation);
+    QStringList fontLocations =
+        QStandardPaths::standardLocations(QStandardPaths::FontsLocation);
     for (auto& path : fontLocations)
     {
         QDirIterator iter(path, QDirIterator::Subdirectories);
@@ -64,7 +74,8 @@ MainWindow::MainWindow(QWidget *parent)
             {
                 // Get the family of the font
                 int id = QFontDatabase::addApplicationFont(filePath);
-                QStringList families = QFontDatabase::applicationFontFamilies(id);
+                QStringList families =
+                    QFontDatabase::applicationFontFamilies(id);
 
                 // Add the file to the respective families
                 for (auto& family : families)
@@ -76,10 +87,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::disableButtons()
 {
@@ -111,8 +119,10 @@ void MainWindow::addVisualization()
     if (addDialog->exec() == QDialog::Accepted)
     {
         // Let the model know of the new data by re-running the query
-        QSqlQueryModel* model = qobject_cast<QSqlQueryModel*>(ui->viszList->model());
-        model->setQuery(model->query().lastQuery(), QSqlDatabase::database("visualizations"));
+        QSqlQueryModel* model =
+            qobject_cast<QSqlQueryModel*>(ui->viszList->model());
+        model->setQuery(model->query().lastQuery(),
+                        QSqlDatabase::database("visualizations"));
     }
 }
 
@@ -125,14 +135,15 @@ void MainWindow::playVisualization()
 
     // Set the arguments to pass to the barchart process
     QStringList args;
-    args << "-csv" << currentlySelected.csvPath << "-font" << currentlySelected.fontPath
-         << "-barheight"
-         << ui->spinBarHeight->cleanText()
-         << "-timepercategory" << ui->spinTimePerCategory->cleanText();
+    args << "-csv" << currentlySelected.csvPath << "-font"
+         << currentlySelected.fontPath << "-barheight"
+         << ui->spinBarHeight->cleanText() << "-timepercategory"
+         << ui->spinTimePerCategory->cleanText();
 
     // Start the program
     QProcess* process = new QProcess(this);
-    QObject::connect(process, &QProcess::readyReadStandardError, this, &MainWindow::playbackError);
+    QObject::connect(process, &QProcess::readyReadStandardError, this,
+                     &MainWindow::playbackError);
     process->start(QCoreApplication::applicationDirPath() + "/barchart", args);
 }
 
@@ -166,8 +177,10 @@ void MainWindow::deleteEntry()
         // Delete the entry in the database
         viszDao->deleteEntry(currentlySelected);
         // Update the model
-        QSqlQueryModel* model = qobject_cast<QSqlQueryModel*>(ui->viszList->model());
-        model->setQuery(model->query().lastQuery(), QSqlDatabase::database("visualizations"));
+        QSqlQueryModel* model =
+            qobject_cast<QSqlQueryModel*>(ui->viszList->model());
+        model->setQuery(model->query().lastQuery(),
+                        QSqlDatabase::database("visualizations"));
         // Disable the buttons
         disableButtons();
     }
@@ -176,7 +189,9 @@ void MainWindow::deleteEntry()
 void MainWindow::viszSelected(const QModelIndex& index)
 {
     int row = qobject_cast<QSqlQueryModel*>(ui->viszList->model())
-                  ->record(index.row()).value(0).toInt();
+                  ->record(index.row())
+                  .value(0)
+                  .toInt();
     currentlySelected = viszDao->getEntry(row);
 
     ui->spinBarHeight->setValue(currentlySelected.barHeight);
@@ -188,15 +203,9 @@ void MainWindow::viszSelected(const QModelIndex& index)
     ui->fontButton->setText(info.baseName());
 }
 
-void MainWindow::menuExit()
-{
-    QApplication::quit();
-}
+void MainWindow::menuExit() { QApplication::quit(); }
 
-void MainWindow::helpQt()
-{
-    QApplication::aboutQt();
-}
+void MainWindow::helpQt() { QApplication::aboutQt(); }
 
 void MainWindow::helpCsv()
 {
@@ -209,7 +218,8 @@ void MainWindow::playbackError()
     // Multiple QProcesses could be connected to this slot, therefore
     // we need to get the sender
     QProcess* process = qobject_cast<QProcess*>(QObject::sender());
-    if (process == nullptr) return;
+    if (process == nullptr)
+        return;
 
     QString msg = process->readAllStandardError();
     // Forward the standard error to the user

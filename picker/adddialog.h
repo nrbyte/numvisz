@@ -6,7 +6,8 @@
 #include "visualizationsdao.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
+namespace Ui
+{
 class AddDialog;
 }
 QT_END_NAMESPACE
@@ -15,7 +16,8 @@ class AddDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit AddDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts, QWidget* parent = nullptr);
+    explicit AddDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts,
+                       QWidget* parent = nullptr);
     ~AddDialog();
 
 private:

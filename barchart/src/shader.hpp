@@ -7,21 +7,18 @@
 class Shader
 {
 public:
-  Shader(const char* vsSource, const char* fsSource);
-  unsigned getUniformLocation(const std::string&);
+    Shader(const char* vsSource, const char* fsSource);
+    unsigned getUniformLocation(const std::string&);
 
-  unsigned getProgram() {
-    return program;
-  }
+    unsigned getProgram() { return program; }
 
-  std::string& getErrorMsg() {
-    return errorMsg;
-  }
+    std::string& getErrorMsg() { return errorMsg; }
+
 private:
-  unsigned program;
-  std::unordered_map<std::string, unsigned int> uniformLocations;
+    unsigned program;
+    std::unordered_map<std::string, unsigned int> uniformLocations;
 
-  std::string errorMsg;
+    std::string errorMsg;
 };
 
 #endif

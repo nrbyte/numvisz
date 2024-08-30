@@ -5,30 +5,29 @@
 
 #include <GLFW/glfw3.h>
 
-class GUI 
+class GUI
 {
 public:
-  GUI()
-    : width{0}, height{0}, mouseX{0}, mouseY{0}, leftMouseDown{false},
-      rightMouseDown{0}
-  {}
+    GUI()
+        : width{0}, height{0}, mouseX{0}, mouseY{0}, leftMouseDown{false},
+          rightMouseDown{0}
+    {
+    }
 
-  void setup(int width, int height, const std::string& title);
-  ~GUI();
+    void setup(int width, int height, const std::string& title);
+    ~GUI();
 
-  void nextFrame();
-  
-  bool windowStillOpen() {
-    return !glfwWindowShouldClose(window);
-  }
+    void nextFrame();
 
-  // Event state
-  int width, height;
-  double mouseX, mouseY;
-  bool leftMouseDown, rightMouseDown;
+    bool windowStillOpen() { return !glfwWindowShouldClose(window); }
+
+    // Event state
+    int width, height;
+    double mouseX, mouseY;
+    bool leftMouseDown, rightMouseDown;
 
 private:
-  GLFWwindow* window;
+    GLFWwindow* window;
 };
 
 #endif

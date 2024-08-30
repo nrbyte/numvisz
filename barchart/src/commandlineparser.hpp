@@ -14,35 +14,33 @@ class CommandLineParser;
 class Arguments
 {
 private:
-  // Allow only the parser to construct objects of this type
-  Arguments(std::shared_ptr<ArgumentMap> map)
-    : argMap {map}
-  {}
-  friend class CommandLineParser;
+    // Allow only the parser to construct objects of this type
+    Arguments(std::shared_ptr<ArgumentMap> map) : argMap{map} {}
+    friend class CommandLineParser;
 
 public:
-  // This value can not be set through the command line
-  constexpr static const char* NotSet = "\0";
+    // This value can not be set through the command line
+    constexpr static const char* NotSet = "\0";
 
-  const std::string& get
-    (const std::string& option,
-     const std::string& defaultValue = Arguments::NotSet) const;
+    const std::string&
+    get(const std::string& option,
+        const std::string& defaultValue = Arguments::NotSet) const;
 
-  int getInt(const std::string& option, int defaultValue) const;
+    int getInt(const std::string& option, int defaultValue) const;
 
-  std::shared_ptr<ArgumentMap> argMap;
+    std::shared_ptr<ArgumentMap> argMap;
 };
 
 class CommandLineParser
 {
 public:
-  CommandLineParser(int argc, char** argv,
-      const std::vector<std::string>& allowedArguments);
+    CommandLineParser(int argc, char** argv,
+                      const std::vector<std::string>& allowedArguments);
 
-  Arguments getArguments();
+    Arguments getArguments();
 
 private:
-  std::shared_ptr<ArgumentMap> argMap;
+    std::shared_ptr<ArgumentMap> argMap;
 };
 
 #endif
