@@ -9,6 +9,7 @@
 
 #include "math.hpp"
 #include "shader.hpp"
+#include "commandlineparser.hpp"
 
 #ifndef STRUCT_COLOR
 #define STRUCT_COLOR
@@ -30,6 +31,7 @@ public:
                         int decimalPoints, math::Matrix<4, 4> projection);
 
     int getWidthOfMsg(const std::string& msg);
+    int getWidthOfLongDouble(const long double& num, int decimalPoints);
 
     int getFontHeight() const { return fontHeight; }
 

@@ -93,6 +93,7 @@ void MainWindow::disableButtons()
 {
     ui->playButton->setDisabled(true);
     ui->spinBarHeight->setDisabled(true);
+    ui->spinDecimalPlaces->setDisabled(true);
     ui->spinTimePerCategory->setDisabled(true);
     ui->openCSVButton->setDisabled(true);
     ui->fontButton->setDisabled(true);
@@ -108,6 +109,7 @@ void MainWindow::enableButtons()
     ui->playButton->setDisabled(false);
     ui->spinBarHeight->setDisabled(false);
     ui->spinTimePerCategory->setDisabled(false);
+    ui->spinDecimalPlaces->setDisabled(false);
     ui->fontButton->setDisabled(false);
     ui->openCSVButton->setDisabled(false);
     ui->deleteButton->setDisabled(false);
@@ -131,6 +133,7 @@ void MainWindow::playVisualization()
     // Save the current parameters
     currentlySelected.barHeight = ui->spinBarHeight->value();
     currentlySelected.timePerCategory = ui->spinTimePerCategory->value();
+    currentlySelected.numOfDecimalPlaces = ui->spinDecimalPlaces->value();
     viszDao->updateEntry(currentlySelected);
 
     // Set the arguments to pass to the barchart process
@@ -138,7 +141,8 @@ void MainWindow::playVisualization()
     args << "-csv" << currentlySelected.csvPath << "-font"
          << currentlySelected.fontPath << "-barheight"
          << ui->spinBarHeight->cleanText() << "-timepercategory"
-         << ui->spinTimePerCategory->cleanText();
+         << ui->spinTimePerCategory->cleanText() << "-decimalplaces"
+         << ui->spinDecimalPlaces->cleanText();
 
     // Start the program
     QProcess* process = new QProcess(this);
@@ -196,6 +200,7 @@ void MainWindow::viszSelected(const QModelIndex& index)
 
     ui->spinBarHeight->setValue(currentlySelected.barHeight);
     ui->spinTimePerCategory->setValue(currentlySelected.timePerCategory);
+    ui->spinDecimalPlaces->setValue(currentlySelected.numOfDecimalPlaces);
 
     enableButtons();
 

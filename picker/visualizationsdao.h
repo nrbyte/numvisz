@@ -11,6 +11,7 @@ struct VisualizationEntry
     QString fontPath;
     int barHeight;
     int timePerCategory;
+    int numOfDecimalPlaces;
 };
 
 class VisualizationsDao : public QObject

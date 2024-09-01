@@ -51,9 +51,12 @@ int Application::run()
     math::Matrix<4, 4> proj;
     // Setup a window, MUST NOT CALL ANY OPENGL BEFORE THIS
     gui.setup(800, 600, "Visualization");
+    // Initialize utility classes
     Renderer renderer;
     FontRenderer fontRenderer;
     FontRenderer fontRendererLarge;
+    // Store number of decimal places for drawing numbers
+    int numOfDecimalPlaces = args.getInt("-decimalplaces", 0);
     // Enable blending in GL
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -75,7 +78,7 @@ int Application::run()
     struct
     {
         const unsigned aroundRowName = 50;
-        const unsigned aroundRowValue = 30;
+        const unsigned aroundRowValue = 50;
         const unsigned aroundTitle = 80;
         const unsigned aroundControl =
             80; // Around the time control at the bottom
@@ -205,8 +208,9 @@ int Application::run()
 
         // 4 - Adjust spacing
         float newAfterBarsValue =
-            Paddings.aroundRowValue + fontRenderer.getWidthOfMsg(std::to_string(
-                                          currentValues.front().value));
+            Paddings.aroundRowValue +
+            fontRenderer.getWidthOfLongDouble(currentValues.front().value,
+                                              numOfDecimalPlaces);
         // Only increase the spacing if more space is required
         if (newAfterBarsValue > Spacings.afterBars)
             Spacings.afterBars = newAfterBarsValue;
@@ -280,8 +284,9 @@ int Application::run()
                     row.currentHeight + fontHeightSpacing, row.name, proj);
                 // Draw in the current values
                 fontRenderer.drawLongDouble(
-                    barX2 + (Paddings.aroundRowValue * 0.5),
-                    row.currentHeight + fontHeightSpacing, row.value, 2, proj);
+                    barX2 + (Paddings.aroundRowValue * 0.3),
+                    row.currentHeight + fontHeightSpacing, row.value,
+                    numOfDecimalPlaces, proj);
             }
 
             // Update the heights

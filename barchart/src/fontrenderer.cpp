@@ -192,9 +192,8 @@ void FontRenderer::drawMsg(float x, float y, const std::string& msg,
     }
 }
 
-void FontRenderer::drawLongDouble(float x, float y, const long double& num,
-                                  int decimalPoints,
-                                  math::Matrix<4, 4> projection)
+static std::string convertLongDoubleToStr(const long double& num,
+                                          int decimalPoints)
 {
     static std::ostringstream os;
     // Clear the currently stored string (if any)
@@ -205,8 +204,15 @@ void FontRenderer::drawLongDouble(float x, float y, const long double& num,
     os << std::setprecision(decimalPoints);
     os << num;
 
+    return os.str();
+}
+
+void FontRenderer::drawLongDouble(float x, float y, const long double& num,
+                                  int decimalPoints,
+                                  math::Matrix<4, 4> projection)
+{
     // Draw the formatted number
-    drawMsg(x, y, os.str(), projection);
+    drawMsg(x, y, convertLongDoubleToStr(num, decimalPoints), projection);
 }
 
 int FontRenderer::getWidthOfMsg(const std::string& msg)
@@ -242,4 +248,10 @@ int FontRenderer::getWidthOfMsg(const std::string& msg)
     }
 
     return width;
+}
+
+int FontRenderer::getWidthOfLongDouble(const long double& num,
+                                       int decimalPoints)
+{
+    return getWidthOfMsg(convertLongDoubleToStr(num, decimalPoints));
 }
