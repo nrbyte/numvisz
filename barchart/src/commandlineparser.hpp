@@ -15,7 +15,7 @@ class Arguments
 {
 private:
     // Allow only the parser to construct objects of this type
-    Arguments(std::shared_ptr<ArgumentMap> map) : argMap{map} {}
+    explicit Arguments(std::shared_ptr<ArgumentMap> map) : argMap{map} {}
     friend class CommandLineParser;
 
 public:

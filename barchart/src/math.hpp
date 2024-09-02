@@ -33,7 +33,7 @@ void setOrtho(Matrix<4, 4>& m, float top, float right, float bottom, float left,
               float near, float far);
 void setTranslate(Matrix<4, 4>& m, float x, float y, float z);
 void setScale(Matrix<4, 4>& m, float x, float y, float z);
-}; // namespace math
+} // namespace math
 
 // Operator overloads
 template <int R, int C, int R1, int C1>

@@ -13,7 +13,7 @@ struct Row
 class CsvParser
 {
 public:
-    CsvParser(const std::string& fileName);
+    explicit CsvParser(const std::string& fileName);
 
     const std::vector<std::string>& getCategories() const { return categories; }
     const std::vector<Row>& getRows() const { return rows; }

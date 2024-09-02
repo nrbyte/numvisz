@@ -8,7 +8,7 @@
 class Application
 {
 public:
-    Application(Arguments args);
+    explicit Application(Arguments args);
 
     int run();
 
