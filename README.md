@@ -39,7 +39,7 @@ cmake --build .
 ```
 Alternatively, you can open the project in an IDE like QT creator which already has vcpkg integration. Visual Studio should also work provided you tell it where to find Qt either through the extension or manually.
 
-To run the picker executable (the GUI) you will need <your path to Qt\bin e.g: C:\Qt\6.7.2\msvc2019_64\bin> in your path or it will complain that it can't find the executable. Qt Creator automatically does this for you. You can also run windeployqt which will place the dlls next to the exe, although this tool is more for deployment.
+To run the picker executable (the GUI) you will need <your path to Qt\bin e.g: C:\Qt\6.7.2\msvc2019_64\bin> in your path or it will complain that it can't find Qt DLLs. Qt Creator automatically tells the exe where the DLLs are. You can also run windeployqt which will place the DLLs next to the exe, although this tool is more for deployment.
 
 ### Linux
 Most distributions should have the listed dependencies in the system's repositories.
