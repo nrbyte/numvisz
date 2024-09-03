@@ -31,9 +31,8 @@ MainWindow::MainWindow(QWidget* parent)
     ui->setupUi(this);
 
     QSqlQueryModel* model = new QSqlQueryModel(this);
-    QSqlQuery query("SELECT id, name FROM Visualizations",
-                    QSqlDatabase::database("visualizations"));
-    model->setQuery(query);
+    model->setQuery(QSqlQuery("SELECT id, name FROM Visualizations",
+                              QSqlDatabase::database("visualizations")));
     ui->viszList->setModel(model);
     ui->viszList->setModelColumn(1);
     ui->viszList->setSelectionMode(QAbstractItemView::SingleSelection);
