@@ -1,9 +1,8 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "commandlineparser.hpp"
-
-#include "gui.hpp"
+#include "viszbase/commandlineparser.hpp"
+#include "viszbase/gui.hpp"
 
 class Application
 {

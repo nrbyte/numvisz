@@ -1,4 +1,4 @@
-#include "fontrenderer.hpp"
+#include "viszbase/fontrenderer.hpp"
 
 #include <iomanip>
 #include <stdexcept>
@@ -146,6 +146,10 @@ static char32_t utf8ToUtf32(const char* c)
 void FontRenderer::drawMsg(float x, float y, const std::string& msg,
                            math::Matrix<4, 4> projection)
 {
+    // Enable blending in GL
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glUseProgram(fontShader.getProgram());
 
     for (int i = 0; i < msg.length();)
@@ -190,6 +194,8 @@ void FontRenderer::drawMsg(float x, float y, const std::string& msg,
         x += ch.advanceX;
         i += utf8_charLength(&cStart);
     }
+    // Disable blending again
+    glDisable(GL_BLEND);
 }
 
 static std::string convertLongDoubleToStr(const long double& num,

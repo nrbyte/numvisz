@@ -1,4 +1,4 @@
-#include "math.hpp"
+#include "viszbase/math.hpp"
 
 void math::setOrtho(Matrix<4, 4>& m, float top, float right, float bottom,
                     float left, float near, float far)

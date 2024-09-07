@@ -37,3 +37,4 @@
 # CMake
 # Commonly used folder that should not be pushed!
 build/
+*.user

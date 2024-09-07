@@ -1,8 +1,11 @@
 #include <stdexcept>
 
+#define GLAD_GLAPI_EXPORT
+#define GLAD_GLAPI_EXPORT_BUILD
+#define GLAD_GL_IMPLEMENTATION
 #include "glad/gl.hpp"
 
-#include "gui.hpp"
+#include "viszbase/gui.hpp"
 
 // Callbacks
 static void callback_framebuffer_size(GLFWwindow* window, int width, int height)
@@ -76,6 +79,17 @@ void GUI::nextFrame()
 
     // Update mouse position
     glfwGetCursorPos(window, &this->mouseX, &this->mouseY);
+}
+
+void GUI::clearScreen(Color color)
+{
+    glClearColor(color.r, color.g, color.b, color.a);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void GUI::setViewport(float x, float y, float width, float height)
+{
+    glViewport(x, y, width, height);
 }
 
 GUI::~GUI()

@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-#include "commandlineparser.hpp"
+#include "viszbase/commandlineparser.hpp"
 
 CommandLineParser::CommandLineParser(
     int argc, char** argv, const std::vector<std::string>& allowedArguments)

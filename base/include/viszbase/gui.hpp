@@ -5,6 +5,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "color.hpp"
+
 class GUI
 {
 public:
@@ -20,6 +22,10 @@ public:
     void nextFrame();
 
     bool windowStillOpen() { return !glfwWindowShouldClose(window); }
+
+    // GL Helper functions
+    void clearScreen(Color color);
+    void setViewport(float x, float y, float width, float height);
 
     // Event state
     int width, height;

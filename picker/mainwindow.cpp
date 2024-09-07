@@ -147,7 +147,8 @@ void MainWindow::playVisualization()
     QProcess* process = new QProcess(this);
     QObject::connect(process, &QProcess::readyReadStandardError, this,
                      &MainWindow::playbackError);
-    process->start(QCoreApplication::applicationDirPath() + "/barchart", args);
+    process->start(
+        QCoreApplication::applicationDirPath() + "/numvisz_barchartrace", args);
 }
 
 void MainWindow::changeFont()

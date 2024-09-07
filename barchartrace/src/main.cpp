@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "application.hpp"
-#include "commandlineparser.hpp"
+#include "viszbase/commandlineparser.hpp"
 
 int main(int argc, char** argv)
 {

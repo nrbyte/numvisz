@@ -1,6 +1,6 @@
 #include "glad/gl.hpp"
 
-#include "shader.hpp"
+#include "viszbase/shader.hpp"
 
 Shader::Shader(const char* vsSource, const char* fsSource)
 {

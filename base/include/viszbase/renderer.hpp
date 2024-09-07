@@ -4,13 +4,7 @@
 #include "shader.hpp"
 #include "math.hpp"
 
-#ifndef STRUCT_COLOR
-#define STRUCT_COLOR
-struct Color
-{
-    float r, g, b, a;
-};
-#endif
+#include "color.hpp"
 
 class Renderer
 {

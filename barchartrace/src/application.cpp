@@ -2,15 +2,17 @@
 #include <algorithm>
 #include <cmath>
 
+#define GLAD_GLAPI_EXPORT
 #define GLAD_GL_IMPLEMENTATION
-#include "glad/gl.hpp"
+#include <glad/gl.hpp>
 
 #include "application.hpp"
-#include "renderer.hpp"
-#include "math.hpp"
-#include "csvparser.hpp"
-#include "fontrenderer.hpp"
-#include "timer.hpp"
+
+#include "viszbase/renderer.hpp"
+#include "viszbase/math.hpp"
+#include "viszbase/csvparser.hpp"
+#include "viszbase/fontrenderer.hpp"
+#include "viszbase/timer.hpp"
 
 Application::Application(Arguments arg) : args{arg} {}
 
@@ -28,15 +30,16 @@ struct RowState
 static void generateColors(std::vector<RowState>& rows)
 {
     int i = 0;
-    float increment = 3 * (1.0f / rows.size());
-    for (float r = 0.0f; r <= 1.0f; r += increment)
+    int increment = 3 * (255.0 / rows.size());
+    for (int r = 0; r <= 255; r += increment)
     {
-        for (float g = 0.0f; g <= 1.0f; g += increment)
+        for (int g = 0; g <= 255; g += increment)
         {
-            for (float b = 0.0f; b <= 1.0f; b += increment)
+            for (int b = 0; b <= 255; b += increment)
             {
                 if (i < rows.size())
-                    rows[i].color = Color{r, g, b, 1.0f};
+                    rows[i].color =
+                        Color{r / 255.0f, g / 255.0f, b / 255.0f, 1.0f};
                 else
                     return;
                 ++i;
@@ -57,9 +60,6 @@ int Application::run()
     FontRenderer fontRendererLarge;
     // Store number of decimal places for drawing numbers
     int numOfDecimalPlaces = args.getInt("-decimalplaces", 0);
-    // Enable blending in GL
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Temporary placeholder spacings for now
     // Code below will modify these values based on things like font height
@@ -142,11 +142,9 @@ int Application::run()
     timer.start();
     while (gui.windowStillOpen())
     {
-
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        gui.clearScreen(Color{1.0f, 1.0f, 1.0f, 1.0f});
         // Set viewport size
-        glViewport(0, 0, gui.width, gui.height);
+        gui.setViewport(0, 0, gui.width, gui.height);
         // Update projection matrix
         math::setOrtho(proj, 0, gui.width, gui.height, 0, -0.1f, -100.0f);
 

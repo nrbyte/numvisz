@@ -2,7 +2,7 @@
 
 #include <glad/gl.hpp>
 
-#include "renderer.hpp"
+#include "viszbase/renderer.hpp"
 
 Renderer::Renderer()
     : rectShader(
