@@ -13,6 +13,7 @@ public:
     void put(int row, int col, float value) { data[(C * row) + col] = value; }
     float get(int row, int col) const { return data[(C * row) + col]; }
     float* operator*() { return &data[0]; }
+    const float* operator*() const { return &data[0]; }
 
     void clear() { std::fill(data.begin(), data.end(), 0); }
 

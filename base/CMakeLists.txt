@@ -21,6 +21,8 @@ target_sources(viszbase PRIVATE
   include/viszbase/commandlineparser.hpp
   src/timer.cpp
   include/viszbase/timer.hpp
+  src/linerenderer.cpp
+  include/viszbase/linerenderer.hpp
 
   include/viszbase/color.hpp
 )

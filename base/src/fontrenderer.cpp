@@ -16,7 +16,8 @@ FontRenderer::FontRenderer()
     // Check the shader compiled successfully
     if (!fontShader.getErrorMsg().empty())
     {
-        throw std::runtime_error("Shader error: " + fontShader.getErrorMsg());
+        throw std::runtime_error("Font shader error: " +
+                                 fontShader.getErrorMsg());
     }
 
     // Setup OpenGL rectangle

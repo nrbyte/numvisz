@@ -14,7 +14,8 @@ Renderer::Renderer()
     // Check the shader compiled successfully
     if (!rectShader.getErrorMsg().empty())
     {
-        throw std::runtime_error("Shader error: " + rectShader.getErrorMsg());
+        throw std::runtime_error("Rect shader error: " +
+                                 rectShader.getErrorMsg());
     }
 
     // Configure rectangle vertex buffer

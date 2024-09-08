@@ -1,7 +1,5 @@
 #include <stdexcept>
 
-#define GLAD_GLAPI_EXPORT
-#define GLAD_GLAPI_EXPORT_BUILD
 #define GLAD_GL_IMPLEMENTATION
 #include "glad/gl.hpp"
 
