@@ -7,6 +7,8 @@ LineRenderer::LineRenderer(const std::vector<float>& points)
     : lineShader(
 #include "shaders/line.vs"
           ,
+#include "shaders/line.gs"
+          ,
 #include "shaders/line.fs"
       )
 {

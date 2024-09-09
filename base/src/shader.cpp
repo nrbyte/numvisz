@@ -2,42 +2,53 @@
 
 #include "viszbase/shader.hpp"
 
-Shader::Shader(const char* vsSource, const char* fsSource)
+unsigned Shader::createShader(unsigned shaderType, const char* source)
 {
-    // Compile the vertex shader
-    unsigned vShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vShader, 1, &vsSource, NULL);
-    glCompileShader(vShader);
+    // Compile the shader
+    unsigned shader = glCreateShader(shaderType);
+    glShaderSource(shader, 1, &source, NULL);
+    glCompileShader(shader);
 
     int status = 0;
     char msg[1024];
 
-    glGetShaderiv(vShader, GL_COMPILE_STATUS, &status);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     if (!status)
     {
-        errorMsg += "\nVertex Shader failed to compile:\n";
-        glGetShaderInfoLog(vShader, 1024, NULL, msg);
+        switch (shaderType)
+        {
+        case GL_VERTEX_SHADER:
+            errorMsg += "\nVertex Shader failed to compile:\n";
+            break;
+        case GL_GEOMETRY_SHADER:
+            errorMsg += "\nGeometry Shader failed to compile:\n";
+            break;
+        case GL_FRAGMENT_SHADER:
+            errorMsg += "\nFragment Shader failed to compile:\n";
+            break;
+        default:
+            errorMsg += "\nUnrecognised shader failed to compile:\n";
+        }
+        glGetShaderInfoLog(shader, 1024, NULL, msg);
         errorMsg += msg;
         errorMsg += '\n';
     }
+
+    return shader;
+}
+
+Shader::Shader(const char* vsSource, const char* fsSource)
+{
+    // Compile the vertex shader
+    unsigned vShader = createShader(GL_VERTEX_SHADER, vsSource);
 
     // Compile the fragment shader
-    unsigned fShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fShader, 1, &fsSource, NULL);
-    glCompileShader(fShader);
-
-    status = 0;
-
-    glGetShaderiv(fShader, GL_COMPILE_STATUS, &status);
-    if (!status)
-    {
-        errorMsg += "\nFragment Shader failed to compile:\n";
-        glGetShaderInfoLog(fShader, 1024, NULL, msg);
-        errorMsg += msg;
-        errorMsg += '\n';
-    }
+    unsigned fShader = createShader(GL_FRAGMENT_SHADER, fsSource);
 
     // Link the program
+    int status;
+    char msg[1024];
+
     program = glCreateProgram();
     glAttachShader(program, vShader);
     glAttachShader(program, fShader);
@@ -53,6 +64,41 @@ Shader::Shader(const char* vsSource, const char* fsSource)
     }
 
     glDeleteShader(vShader);
+    glDeleteShader(fShader);
+}
+
+Shader::Shader(const char* vsSource, const char* gsSource, const char* fsSource)
+{
+    // Compile the vertex shader
+    unsigned vShader = createShader(GL_VERTEX_SHADER, vsSource);
+
+    // Compile the geometry shader
+    unsigned gShader = createShader(GL_GEOMETRY_SHADER, gsSource);
+
+    // Compile the fragment shader
+    unsigned fShader = createShader(GL_FRAGMENT_SHADER, fsSource);
+
+    // Link the program
+    int status;
+    char msg[1024];
+
+    program = glCreateProgram();
+    glAttachShader(program, vShader);
+    glAttachShader(program, gShader);
+    glAttachShader(program, fShader);
+    glLinkProgram(program);
+
+    glGetProgramiv(program, GL_LINK_STATUS, &status);
+    if (!status)
+    {
+        glGetProgramInfoLog(program, 1024, NULL, msg);
+        errorMsg += "\nProgram failed to link:\n";
+        errorMsg += msg;
+        errorMsg += '\n';
+    }
+
+    glDeleteShader(vShader);
+    glDeleteShader(gShader);
     glDeleteShader(fShader);
 }
 

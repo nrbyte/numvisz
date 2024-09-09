@@ -8,6 +8,7 @@ class Shader
 {
 public:
     Shader(const char* vsSource, const char* fsSource);
+    Shader(const char* vsSource, const char* gsSource, const char* fsSource);
     unsigned getUniformLocation(const std::string&);
 
     unsigned getProgram() { return program; }
@@ -17,8 +18,9 @@ public:
 private:
     unsigned program;
     std::unordered_map<std::string, unsigned int> uniformLocations;
-
     std::string errorMsg;
+
+    unsigned createShader(unsigned shaderType, const char* source);
 };
 
 #endif
