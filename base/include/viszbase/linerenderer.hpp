@@ -16,7 +16,7 @@ public:
               const math::Matrix<4, 4>& proj);
 
 private:
-    LineRenderer(const std::vector<float>& points);
+    LineRenderer(std::vector<float>& points);
 
     unsigned VAO, VBO, numOfPoints;
     Shader lineShader;

@@ -3,7 +3,7 @@
 #include <glad/gl.hpp>
 
 // Renderer
-LineRenderer::LineRenderer(const std::vector<float>& points)
+LineRenderer::LineRenderer(std::vector<float>& points)
     : lineShader(
 #include "shaders/line.vs"
           ,
@@ -17,6 +17,15 @@ LineRenderer::LineRenderer(const std::vector<float>& points)
     {
         throw std::runtime_error("Line shader error: " +
                                  lineShader.getErrorMsg());
+    }
+
+    // Add the last point twice so that GL_LINE_STRIP_ADJACENY doesn't exclude
+    // the last point
+    if (points.size() > 1)
+    {
+        float last_x = points[points.size() - 2],
+              last_y = points[points.size() - 1];
+        points.insert(points.end(), {last_x, last_y, last_x, last_y});
     }
 
     numOfPoints = points.size();
@@ -34,6 +43,7 @@ LineRenderer::LineRenderer(const std::vector<float>& points)
 
     glBindVertexArray(0);
 }
+
 void LineRenderer::draw(Color color, float aspectRatio, float lineThickness,
                         const math::Matrix<4, 4>& proj)
 {
@@ -49,7 +59,7 @@ void LineRenderer::draw(Color color, float aspectRatio, float lineThickness,
     glUniform1f(lineShader.getUniformLocation("lineThickness"), lineThickness);
 
     // Draw
-    glDrawArrays(GL_LINE_STRIP, 0, numOfPoints / 2);
+    glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, numOfPoints / 2);
 }
 
 // Builder
