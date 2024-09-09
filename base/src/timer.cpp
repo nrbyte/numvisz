@@ -28,8 +28,8 @@ Timer::FloatMS Timer::getInMilliseconds()
 void Timer::stop()
 {
     // Set timer to stopped at its current time
-    stopped = true;
     timeStoppedAt = getInMilliseconds();
+    stopped = true;
 }
 
 void Timer::resume()

@@ -15,6 +15,7 @@ struct Line
     std::string name;
     Color color;
     LineRenderer renderer;
+    float currentValue;
 };
 
 // Helper function to generate colors for each row
@@ -54,7 +55,7 @@ int Application::run()
 
     // Get time per category from arguments if set, otherwise use
     // sensible default
-    Timer::FloatMS timePerCategory{args.getInt("-timepercategory", 200)};
+    Timer::FloatMS timePerCategory{args.getInt("-timepercategory", 100)};
 
     // Go through each line, and load in the values
     std::vector<Line> lines;
@@ -69,12 +70,14 @@ int Application::run()
             x += timePerCategory.count();
         }
         lines.push_back(
-            {row.name, Color{1.0f, 1.0f, 1.0f, 1.0f}, builder.build()});
+            {row.name, Color{1.0f, 1.0f, 1.0f, 1.0f}, builder.build(), 0.0f});
     }
 
     // Generate colours
     generateColors(lines);
 
+    float height = 0.0f;
+    bool reachedEnd = false;
     // Start the timer and start drawing
     timer.start();
     while (gui.windowStillOpen())
@@ -87,9 +90,55 @@ int Application::run()
 
         auto currentTime = timer.getInMilliseconds();
         float currentPosition = currentTime / timePerCategory;
+        int intCurrentPosition = int(currentPosition);
+
+        // Has reached end?
+        if (!reachedEnd && currentPosition > csv.getCategories().size() - 1)
+        {
+            reachedEnd = true;
+            timer.stop();
+            // Stop the projection's horizontal view increasing, and ensure
+            // that currentPosition and intCurrentPosition will henceforth
+            // be equal to csv.getCategories().size() - 1 (i.e point to the
+            // last value, and not beyond it)
+            timer.setTime(timePerCategory * (csv.getCategories().size() - 1));
+        }
+
+        // Update current values
+        float highestValue = std::numeric_limits<float>().min();
+        float prevValue, nextValue, diff;
+        for (auto& row : csv.getRows())
+        {
+            prevValue = row.values[intCurrentPosition];
+            // If reached end, there is no value beyond the last
+            if (reachedEnd)
+                nextValue = prevValue;
+            else
+                nextValue = row.values[intCurrentPosition + 1];
+
+            float diff = nextValue - prevValue;
+            // The current value is the previous value plus a fraction of the
+            // difference to the next value, to give the look that we're moving
+            // to the next value gradually as time progresses.
+            float currentValue =
+                prevValue + ((currentPosition - intCurrentPosition) * diff);
+
+            // Update the current value in the lines vector
+            std::find_if(lines.begin(), lines.end(),
+                         [&](const auto& l) { return l.name == row.name; })
+                ->currentValue = currentValue;
+
+            // Update the highest value
+            if (currentValue > highestValue)
+                highestValue = currentValue;
+        }
+
+        // Resize the height to ensure the highest value can be seen
+        if (highestValue > height)
+            height = highestValue;
 
         // Set projection
-        math::setOrtho(proj, 25000, currentTime.count(), 0, 0, -0.1f, -100.0f);
+        math::setOrtho(proj, height, currentTime.count(), 0, 0, -0.1f, -100.0f);
         // Draw the lines
         for (auto& line : lines)
             line.renderer.draw(line.color, proj);
