@@ -43,16 +43,18 @@ VisualizationsDao::VisualizationsDao(QObject* parent) : QObject{parent}
                "fontPath TEXT NOT NULL,"
                "barHeight INTEGER NOT NULL,"
                "timePerCategory INTEGER NOT NULL,"
-               "numOfDecimalPlaces INTEGER NOT NULL);");
+               "numOfDecimalPlaces INTEGER NOT NULL,"
+               "lineThickness INTEGER NOT NULL);");
 }
 
 void VisualizationsDao::addEntry(const QString& name, const QString& csvPath,
                                  const QString& fontPath)
 {
     QSqlQuery query(QSqlDatabase::database("visualizations"));
-    query.prepare("INSERT INTO Visualizations (name, csvPath, fontPath, "
-                  "barHeight, timePerCategory, numOfDecimalPlaces) "
-                  "VALUES (:name, :csvPath, :fontPath, 35, 1000, 0);");
+    query.prepare(
+        "INSERT INTO Visualizations (name, csvPath, fontPath, "
+        "barHeight, timePerCategory, numOfDecimalPlaces, lineThickness) "
+        "VALUES (:name, :csvPath, :fontPath, 35, 1000, 0, 5);");
 
     query.bindValue(":name", name);
     query.bindValue(":csvPath", csvPath);
@@ -73,7 +75,8 @@ void VisualizationsDao::updateEntry(VisualizationEntry& entry)
     query.prepare(
         "UPDATE Visualizations "
         "SET name = :name, fontPath = :fontPath, barHeight = "
-        ":barHeight, timePerCategory = :tPC, numOfDecimalPlaces = :nODP"
+        ":barHeight, timePerCategory = :tPC, numOfDecimalPlaces = :nODP,"
+        "lineThickness = :lT"
         " "
         "WHERE id = :id;");
 
@@ -82,6 +85,7 @@ void VisualizationsDao::updateEntry(VisualizationEntry& entry)
     query.bindValue(":barHeight", entry.barHeight);
     query.bindValue(":tPC", entry.timePerCategory);
     query.bindValue(":nODP", entry.numOfDecimalPlaces);
+    query.bindValue(":lT", entry.lineThickness);
     query.bindValue(":id", entry.id);
 
     query.exec();
@@ -100,8 +104,8 @@ VisualizationEntry VisualizationsDao::getEntry(int id)
 {
     QSqlQuery query(QSqlDatabase::database("visualizations"));
     query.prepare("SELECT id, name, csvPath, fontPath, barHeight, "
-                  "timePerCategory, numOfDecimalPlaces FROM Visualizations "
-                  "WHERE id = :id");
+                  "timePerCategory, numOfDecimalPlaces, lineThickness FROM "
+                  "Visualizations WHERE id = :id");
     query.bindValue(":id", id);
     query.exec();
 
@@ -111,6 +115,6 @@ VisualizationEntry VisualizationsDao::getEntry(int id)
         query.value(0).toInt(),    query.value(1).toString(),
         query.value(2).toString(), query.value(3).toString(),
         query.value(4).toInt(),    query.value(5).toInt(),
-        query.value(6).toInt()};
+        query.value(6).toInt(),    query.value(7).toInt()};
     return entry;
 }

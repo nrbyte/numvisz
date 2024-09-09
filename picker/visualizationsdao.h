@@ -12,6 +12,7 @@ struct VisualizationEntry
     int barHeight;
     int timePerCategory;
     int numOfDecimalPlaces;
+    int lineThickness;
 };
 
 class VisualizationsDao : public QObject

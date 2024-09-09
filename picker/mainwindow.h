@@ -39,7 +39,8 @@ private:
 private slots:
     // Buttons
     void addVisualization();
-    void playVisualization();
+    void playBarChart();
+    void playLineChart();
     void changeFont();
     void openCSV();
     void deleteEntry();

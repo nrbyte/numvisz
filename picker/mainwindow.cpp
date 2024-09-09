@@ -41,8 +41,10 @@ MainWindow::MainWindow(QWidget* parent)
 
     QObject::connect(ui->addButton, &QPushButton::clicked, this,
                      &MainWindow::addVisualization);
-    QObject::connect(ui->playButton, &QPushButton::clicked, this,
-                     &MainWindow::playVisualization);
+    QObject::connect(ui->playBarchartButton, &QPushButton::clicked, this,
+                     &MainWindow::playBarChart);
+    QObject::connect(ui->playLinechartButton, &QPushButton::clicked, this,
+                     &MainWindow::playLineChart);
     QObject::connect(ui->fontButton, &QPushButton::clicked, this,
                      &MainWindow::changeFont);
     QObject::connect(ui->openCSVButton, &QPushButton::clicked, this,
@@ -90,25 +92,30 @@ MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::disableButtons()
 {
-    ui->playButton->setDisabled(true);
-    ui->spinBarHeight->setDisabled(true);
+    ui->playBarchartButton->setDisabled(true);
+    ui->playLinechartButton->setDisabled(true);
     ui->spinDecimalPlaces->setDisabled(true);
     ui->spinTimePerCategory->setDisabled(true);
+    ui->spinBarHeight->setDisabled(true);
+    ui->spinLineThickness->setDisabled(true);
     ui->openCSVButton->setDisabled(true);
     ui->fontButton->setDisabled(true);
     ui->deleteButton->setDisabled(true);
 
-    ui->spinBarHeight->setValue(35);
     ui->spinTimePerCategory->setValue(1000);
+    ui->spinBarHeight->setValue(35);
+    ui->spinLineThickness->setValue(5);
     ui->fontButton->setText("Change Font");
 }
 
 void MainWindow::enableButtons()
 {
-    ui->playButton->setDisabled(false);
-    ui->spinBarHeight->setDisabled(false);
+    ui->playBarchartButton->setDisabled(false);
+    ui->playLinechartButton->setDisabled(false);
     ui->spinTimePerCategory->setDisabled(false);
     ui->spinDecimalPlaces->setDisabled(false);
+    ui->spinBarHeight->setDisabled(false);
+    ui->spinLineThickness->setDisabled(false);
     ui->fontButton->setDisabled(false);
     ui->openCSVButton->setDisabled(false);
     ui->deleteButton->setDisabled(false);
@@ -127,7 +134,7 @@ void MainWindow::addVisualization()
     }
 }
 
-void MainWindow::playVisualization()
+void MainWindow::playBarChart()
 {
     // Save the current parameters
     currentlySelected.barHeight = ui->spinBarHeight->value();
@@ -149,6 +156,31 @@ void MainWindow::playVisualization()
                      &MainWindow::playbackError);
     process->start(
         QCoreApplication::applicationDirPath() + "/numvisz_barchartrace", args);
+}
+
+void MainWindow::playLineChart()
+{
+    // Save the current parameters
+    currentlySelected.lineThickness = ui->spinLineThickness->value();
+    currentlySelected.timePerCategory = ui->spinTimePerCategory->value();
+    currentlySelected.numOfDecimalPlaces = ui->spinDecimalPlaces->value();
+    viszDao->updateEntry(currentlySelected);
+
+    // Set the arguments to pass to the barchart process
+    QStringList args;
+    args << "-csv" << currentlySelected.csvPath << "-font"
+         << currentlySelected.fontPath << "-linethickness"
+         << ui->spinLineThickness->cleanText() << "-timepercategory"
+         << ui->spinTimePerCategory->cleanText() << "-decimalplaces"
+         << ui->spinDecimalPlaces->cleanText();
+
+    // Start the program
+    QProcess* process = new QProcess(this);
+    QObject::connect(process, &QProcess::readyReadStandardError, this,
+                     &MainWindow::playbackError);
+    process->start(QCoreApplication::applicationDirPath() +
+                       "/numvisz_linechartrace",
+                   args);
 }
 
 void MainWindow::changeFont()
@@ -198,9 +230,10 @@ void MainWindow::viszSelected(const QModelIndex& index)
                   .toInt();
     currentlySelected = viszDao->getEntry(row);
 
-    ui->spinBarHeight->setValue(currentlySelected.barHeight);
     ui->spinTimePerCategory->setValue(currentlySelected.timePerCategory);
     ui->spinDecimalPlaces->setValue(currentlySelected.numOfDecimalPlaces);
+    ui->spinBarHeight->setValue(currentlySelected.barHeight);
+    ui->spinLineThickness->setValue(currentlySelected.lineThickness);
 
     enableButtons();
 
