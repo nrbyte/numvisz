@@ -55,8 +55,9 @@ void main()
     float gradient1 = (point2 - point1).y / (point2 - point1).x;
     float gradient2 = (point3 - point2).y / (point3 - point2).x;
 
-    //if (gradient1 - gradient2 < 0.0001)
-    //    return;
+    // Don't divide by 0
+    if (gradient1 == gradient2)
+        return;
 
     // Draw the connector on the top, calculate the intersection and draw
     // triangles
