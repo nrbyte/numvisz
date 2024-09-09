@@ -9,9 +9,9 @@ int main(int argc, char** argv)
     try
     {
         // Parse arguments
-        CommandLineParser parser(
-            argc, argv,
-            {"-csv", "-font", "-timepercategory", "-decimalplaces"});
+        CommandLineParser parser(argc, argv,
+                                 {"-csv", "-font", "-timepercategory",
+                                  "-decimalplaces", "-linethickness"});
         // Start application with those parsed arguments
         Application app(parser.getArguments());
         return app.run();

@@ -57,6 +57,11 @@ int Application::run()
     // sensible default
     Timer::FloatMS timePerCategory{args.getInt("-timepercategory", 100)};
 
+    // Get line thickness from arguments if set, otherwise use
+    // sensible default
+    float lineThickness = args.getInt("-linethickness", 10);
+    lineThickness /= 1000;
+
     // Go through each line, and load in the values
     std::vector<Line> lines;
     for (auto& row : csv.getRows())
@@ -138,10 +143,12 @@ int Application::run()
             height = highestValue;
 
         // Set projection
-        math::setOrtho(proj, height, currentTime.count(), 0, 0, -0.1f, -100.0f);
+        math::setOrtho(proj, height * (1 + lineThickness / 2),
+                       currentTime.count(), 0, 0, -0.1f, -100.0f);
         // Draw the lines
+        float aspectRatio = float(gui.width) / gui.height;
         for (auto& line : lines)
-            line.renderer.draw(line.color, proj);
+            line.renderer.draw(line.color, aspectRatio, lineThickness, proj);
 
         // Advance to the next frame
         gui.nextFrame();

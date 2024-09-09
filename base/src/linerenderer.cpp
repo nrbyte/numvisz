@@ -34,16 +34,21 @@ LineRenderer::LineRenderer(const std::vector<float>& points)
 
     glBindVertexArray(0);
 }
-void LineRenderer::draw(Color color, const math::Matrix<4, 4>& proj)
+void LineRenderer::draw(Color color, float aspectRatio, float lineThickness,
+                        const math::Matrix<4, 4>& proj)
 {
     glBindVertexArray(VAO);
     glUseProgram(lineShader.getProgram());
 
+    // Send shader values
     glUniformMatrix4fv(lineShader.getUniformLocation("matrix"), 1, GL_TRUE,
                        *proj);
     glUniform4f(lineShader.getUniformLocation("color"), color.r, color.g,
                 color.b, color.a);
+    glUniform1f(lineShader.getUniformLocation("aspectRatio"), aspectRatio);
+    glUniform1f(lineShader.getUniformLocation("lineThickness"), lineThickness);
 
+    // Draw
     glDrawArrays(GL_LINE_STRIP, 0, numOfPoints / 2);
 }
 

@@ -12,7 +12,8 @@ class LineRendererBuilder;
 class LineRenderer
 {
 public:
-    void draw(Color color, const math::Matrix<4, 4>& proj);
+    void draw(Color color, float aspectRatio, float lineThickness,
+              const math::Matrix<4, 4>& proj);
 
 private:
     LineRenderer(const std::vector<float>& points);
