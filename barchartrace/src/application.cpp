@@ -2,10 +2,6 @@
 #include <algorithm>
 #include <cmath>
 
-#define GLAD_GLAPI_EXPORT
-#define GLAD_GL_IMPLEMENTATION
-#include <glad/gl.hpp>
-
 #include "application.hpp"
 
 #include "viszbase/renderer.hpp"

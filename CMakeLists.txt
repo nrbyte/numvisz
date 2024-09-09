@@ -14,5 +14,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory(base)
 # Add barchart executable to this project
 add_subdirectory(barchartrace)
+# Add the linechart executable to this project
+add_subdirectory(linechartrace)
 # Add the UI to this project
 add_subdirectory(picker)
