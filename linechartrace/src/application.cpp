@@ -129,7 +129,8 @@ int Application::run()
     // Generate colours
     generateColors(lines);
 
-    float height = std::numeric_limits<float>().min();
+    float highestValue = std::numeric_limits<float>().min(),
+          lowestValue = std::numeric_limits<float>().max(), height = 0.0f;
     bool reachedEnd = false;
     // Start the timer and start drawing
     timer.start();
@@ -180,8 +181,11 @@ int Application::run()
                   { return x.currentValue > y.currentValue; });
 
         // Update height if necessary
-        if (lines.front().currentValue > height)
-            height = lines.front().currentValue;
+        if (lines.front().currentValue > highestValue)
+            highestValue = lines.front().currentValue;
+        if (lines.back().currentValue < lowestValue)
+            lowestValue = lines.back().currentValue;
+        height = highestValue - lowestValue;
 
         // Update spacing if necessary
         newSpacingAfterLines =
@@ -192,8 +196,8 @@ int Application::run()
             Spacings.afterLines = newSpacingAfterLines;
 
         // Set projection
-        math::setOrtho(proj, height * (1 + lineThickness / 2),
-                       currentTime.count(), 0, 0, -0.1f, -100.0f);
+        math::setOrtho(proj, highestValue + (height * (lineThickness / 2)),
+                       currentTime.count(), lowestValue, 0, -0.1f, -100.0f);
         // Update viewport to leave space around the lines
         gui.setViewport(Spacings.beforeLines, Spacings.belowLines,
                         gui.width - Spacings.afterLines - Spacings.beforeLines,
@@ -246,7 +250,7 @@ int Application::run()
         {
             float textY =
                 Spacings.aboveLines - fontRenderer.getFontHeight() * 0.5 +
-                (1 - line.currentValue / height) *
+                (1 - (line.currentValue - lowestValue) / height) *
                     (gui.height - Spacings.aboveLines - Spacings.belowLines);
             if (textY < nextAvailableY)
                 textY = nextAvailableY;
