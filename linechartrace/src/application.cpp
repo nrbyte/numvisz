@@ -202,10 +202,15 @@ int Application::run()
         gui.setViewport(Spacings.beforeLines, Spacings.belowLines,
                         gui.width - Spacings.afterLines - Spacings.beforeLines,
                         gui.height - Spacings.aboveLines - Spacings.belowLines);
-        // Draw the lines
+        // Draw the lines in the order they appear in the CSV
         float aspectRatio = float(gui.width) / gui.height;
-        for (auto& line : lines)
-            line.renderer.draw(line.color, aspectRatio, lineThickness, proj);
+        for (auto& row : csv.getRows())
+        {
+            auto line =
+                std::find_if(lines.begin(), lines.end(),
+                             [&](const auto& l) { return l.name == row.name; });
+            line->renderer.draw(line->color, aspectRatio, lineThickness, proj);
+        }
 
         // Reset viewport and projection
         gui.setViewport(0, 0, gui.width, gui.height);
