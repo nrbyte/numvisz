@@ -241,19 +241,25 @@ int Application::run()
                              currentCategory, proj);
 
         // Draw row names and values next to lines
-        for (const auto& line : lines)
+        float nextAvailableY = 0.0f;
+        for (auto& line : lines)
         {
-            float lineY =
-                Spacings.aboveLines +
+            float textY =
+                Spacings.aboveLines - fontRenderer.getFontHeight() * 0.5 +
                 (1 - line.currentValue / height) *
                     (gui.height - Spacings.aboveLines - Spacings.belowLines);
-            fontRenderer.drawMsg(
-                gui.width - Spacings.afterLines + Paddings.afterLines * 0.2,
-                lineY - fontRenderer.getFontHeight() / 2.0, line.name, proj);
+            if (textY < nextAvailableY)
+                textY = nextAvailableY;
+
+            fontRenderer.drawMsg(gui.width - Spacings.afterLines +
+                                     Paddings.afterLines * 0.2,
+                                 textY, line.name, proj);
             fontRenderer.drawLongDouble(
                 gui.width - Spacings.afterLines + Paddings.afterLines * 0.2,
-                lineY + fontRenderer.getFontHeight() * 0.3, line.currentValue,
+                textY + fontRenderer.getFontHeight() * 0.8, line.currentValue,
                 numOfDecimalPlaces, proj);
+
+            nextAvailableY = textY + fontRenderer.getFontHeight() * 1.8;
         }
 
         // Advance to the next frame
