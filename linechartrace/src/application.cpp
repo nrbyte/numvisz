@@ -4,6 +4,7 @@
 #include "application.hpp"
 
 #include "viszbase/linerenderer.hpp"
+#include "viszbase/renderer.hpp"
 #include "viszbase/math.hpp"
 #include "viszbase/csvparser.hpp"
 #include "viszbase/timer.hpp"
@@ -42,10 +43,12 @@ static void generateColors(std::vector<Line>& lines)
 
 int Application::run()
 {
-    Timer timer;
-    math::Matrix<4, 4> proj;
     // Setup a window, MUST NOT CALL ANY OPENGL BEFORE THIS
     gui.setup(800, 600, "Visualization");
+
+    Timer timer;
+    Renderer renderer;
+    math::Matrix<4, 4> proj;
 
     // Parse the provided CSV
     const std::string& fileName = args.get("-csv");
@@ -61,6 +64,26 @@ int Application::run()
     // sensible default
     float lineThickness = args.getInt("-linethickness", 10);
     lineThickness /= 1000;
+
+    // Padding and Spacing values
+    struct
+    {
+        unsigned beforeLines = 30;
+        unsigned aboveLines = 30;
+        unsigned belowLines = 30;
+        unsigned afterLines = 30;
+    } Paddings;
+    struct
+    {
+        unsigned beforeLines;
+        unsigned aboveLines;
+        unsigned belowLines;
+        unsigned afterLines;
+    } Spacings;
+    Spacings.beforeLines = Paddings.beforeLines;
+    Spacings.aboveLines = Paddings.aboveLines;
+    Spacings.belowLines = Paddings.belowLines;
+    Spacings.afterLines = Paddings.afterLines;
 
     // Go through each line, and load in the values
     std::vector<Line> lines;
@@ -81,17 +104,13 @@ int Application::run()
     // Generate colours
     generateColors(lines);
 
-    float height = 0.0f;
+    float height = std::numeric_limits<float>().min();
     bool reachedEnd = false;
     // Start the timer and start drawing
     timer.start();
     while (gui.windowStillOpen())
     {
         gui.clearScreen(Color{1.0f, 1.0f, 1.0f, 1.0f});
-        // Set viewport size
-        gui.setViewport(0, 0, gui.width, gui.height);
-        // Update projection matrix
-        math::setOrtho(proj, 0, gui.width, gui.height, 0, -0.1f, -100.0f);
 
         auto currentTime = timer.getInMilliseconds();
         float currentPosition = currentTime / timePerCategory;
@@ -110,7 +129,6 @@ int Application::run()
         }
 
         // Update current values
-        float highestValue = std::numeric_limits<float>().min();
         float prevValue, nextValue, diff;
         for (auto& row : csv.getRows())
         {
@@ -133,22 +151,42 @@ int Application::run()
                          [&](const auto& l) { return l.name == row.name; })
                 ->currentValue = currentValue;
 
-            // Update the highest value
-            if (currentValue > highestValue)
-                highestValue = currentValue;
+            // Update the height if necessary
+            if (currentValue > height)
+                height = currentValue;
         }
-
-        // Resize the height to ensure the highest value can be seen
-        if (highestValue > height)
-            height = highestValue;
 
         // Set projection
         math::setOrtho(proj, height * (1 + lineThickness / 2),
                        currentTime.count(), 0, 0, -0.1f, -100.0f);
+        // Update viewport to leave space around the lines
+        gui.setViewport(
+            Spacings.beforeLines, Spacings.aboveLines,
+            (gui.width - Spacings.afterLines) - Spacings.beforeLines,
+            (gui.height - Spacings.belowLines) - Spacings.aboveLines);
         // Draw the lines
         float aspectRatio = float(gui.width) / gui.height;
         for (auto& line : lines)
             line.renderer.draw(line.color, aspectRatio, lineThickness, proj);
+
+        // Reset viewport and projection
+        gui.setViewport(0, 0, gui.width, gui.height);
+        math::setOrtho(proj, 0, gui.width, gui.height, 0, -0.1f, -100.0f);
+
+        // Draw frame around lines
+        // Draw line along side
+        renderer.drawBox(
+            Spacings.beforeLines, Spacings.aboveLines, Spacings.beforeLines + 1,
+            gui.height - Spacings.belowLines, Color{0, 0, 0, 1}, proj);
+        // Draw line along top
+        renderer.drawBox(Spacings.beforeLines, Spacings.aboveLines,
+                         gui.width - Spacings.afterLines,
+                         Spacings.aboveLines + 1, Color{0, 0, 0, 1}, proj);
+        // Draw line along bottom
+        renderer.drawBox(Spacings.beforeLines, gui.height - Spacings.belowLines,
+                         gui.width - Spacings.afterLines,
+                         gui.height - Spacings.belowLines + 1,
+                         Color{0, 0, 0, 1}, proj);
 
         // Advance to the next frame
         gui.nextFrame();
