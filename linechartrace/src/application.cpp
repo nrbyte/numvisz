@@ -133,6 +133,8 @@ int Application::run()
     // Generate colours
     generateColors(lines);
 
+    math::setOrtho(proj, 0, gui.width, gui.height, 0, -0.1f, -100.0f);
+
     float highestValue = std::numeric_limits<float>().min(),
           lowestValue = std::numeric_limits<float>().max(), height = 0.0f;
     // Text Panel = the row name and value that appears next to the line
@@ -202,6 +204,53 @@ int Application::run()
             std::max((float)Spacings.afterLines, newSpacingAfterLines);
         Spacings.beforeLines =
             std::max((float)Spacings.beforeLines, newSpacingBeforeLines);
+
+        // Draw categories along the bottom along with lines
+        // Calculate what the interval should be between categories to ensure it
+        // isn't crowded and categories' names don't overlap
+        int interval = 1;
+        while (true)
+        {
+            // If this interval is larger than the amount of categories,
+            // subtract 1 and don't increase further
+            if (interval > numCategories - 1)
+            {
+                --interval;
+                break;
+            }
+            // Calculate the required X position of the next category to be
+            // displayed
+            float requiredX =
+                (interval / currentPosition) *
+                (gui.width - Spacings.beforeLines - Spacings.afterLines);
+
+            // If the next category's X position leaves enough room from the
+            // first category, then this interval is fine
+            if (requiredX >
+                fontRenderer.getWidthOfMsg(csv.getCategories()[0]) * 2)
+                break;
+
+            // Otherwise, increase the interval and try again
+            interval++;
+        }
+        for (int i = 0; i <= intNextPosition; i += interval)
+        {
+            float percentAcrossLine = (i / currentPosition);
+            if (percentAcrossLine > 1)
+                continue;
+
+            float x = Spacings.beforeLines +
+                      percentAcrossLine * (gui.width - Spacings.beforeLines -
+                                           Spacings.afterLines);
+
+            fontRenderer.drawMsg(
+                x, gui.height - Spacings.belowLines + Paddings.belowLines * 0.2,
+                csv.getCategories()[i], proj);
+
+            renderer.drawBox(x, Spacings.aboveLines, x + 2,
+                             gui.height - Spacings.belowLines,
+                             Color{0, 0, 0, 0.1f}, proj);
+        }
 
         // Set projection
         math::setOrtho(proj, highestValue + (height * (lineThickness / 2)),
@@ -280,53 +329,6 @@ int Application::run()
             gui.height - Spacings.belowLines -
                 (fontRendererSmall.getFontHeight() * 0.5),
             lowestValue, numOfDecimalPlaces, proj);
-
-        // Draw categories along the bottom along with lines
-        // Calculate what the interval should be between categories to ensure it
-        // isn't crowded and categories' names don't overlap
-        int interval = 1;
-        while (true)
-        {
-            // If this interval is larger than the amount of categories,
-            // subtract 1 and don't increase further
-            if (interval > numCategories - 1)
-            {
-                --interval;
-                break;
-            }
-            // Calculate the required X position of the next category to be
-            // displayed
-            float requiredX =
-                (interval / currentPosition) *
-                (gui.width - Spacings.beforeLines - Spacings.afterLines);
-
-            // If the next category's X position leaves enough room from the
-            // first category, then this interval is fine
-            if (requiredX >
-                fontRenderer.getWidthOfMsg(csv.getCategories()[0]) * 2)
-                break;
-
-            // Otherwise, increase the interval and try again
-            interval++;
-        }
-        for (int i = 0; i <= intNextPosition; i += interval)
-        {
-            float percentAcrossLine = (i / currentPosition);
-            if (percentAcrossLine > 1)
-                continue;
-
-            float x = Spacings.beforeLines +
-                      percentAcrossLine * (gui.width - Spacings.beforeLines -
-                                           Spacings.afterLines);
-
-            fontRenderer.drawMsg(
-                x, gui.height - Spacings.belowLines + Paddings.belowLines * 0.2,
-                csv.getCategories()[i], proj);
-
-            renderer.drawBox(x, Spacings.aboveLines, x + 2,
-                             gui.height - Spacings.belowLines,
-                             Color{0, 0, 0, 0.1f}, proj);
-        }
 
         // Advance to the next frame
         gui.nextFrame();
