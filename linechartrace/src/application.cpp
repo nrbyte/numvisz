@@ -59,6 +59,7 @@ int Application::run()
     if (fileName == Arguments::NotSet)
         throw std::runtime_error("CSV file name not provided!");
     CsvParser csv(fileName);
+    int numCategories = csv.getCategories().size();
 
     // Get time per category from arguments if set, otherwise use
     // sensible default
@@ -134,41 +135,31 @@ int Application::run()
 
     float highestValue = std::numeric_limits<float>().min(),
           lowestValue = std::numeric_limits<float>().max(), height = 0.0f;
-    bool reachedEnd = false;
     // Text Panel = the row name and value that appears next to the line
     float textPanelHeight = fontRenderer.getFontHeight() * 1.5;
+    // Keep track of current position
+    float currentPosition;
+    int intCurrentPosition, intNextPosition;
+    Timer::FloatMS currentTime;
     // Start the timer and start drawing
     timer.start();
     while (gui.windowStillOpen())
     {
         gui.clearScreen(Color{1.0f, 1.0f, 1.0f, 1.0f});
 
-        auto currentTime = timer.getInMilliseconds();
-        float currentPosition = currentTime / timePerCategory;
-        int intCurrentPosition = int(currentPosition);
+        currentTime = std::min(timer.getInMilliseconds(),
+                               (numCategories - 1) * timePerCategory);
 
-        // Has reached end?
-        if (!reachedEnd && currentPosition > csv.getCategories().size() - 1)
-        {
-            reachedEnd = true;
-            timer.stop();
-            // Stop the projection's horizontal view increasing, and ensure
-            // that currentPosition and intCurrentPosition will henceforth
-            // be equal to csv.getCategories().size() - 1 (i.e point to the
-            // last value, and not beyond it)
-            timer.setTime(timePerCategory * (csv.getCategories().size() - 1));
-        }
+        currentPosition = currentTime / timePerCategory;
+        intCurrentPosition = std::min(int(currentPosition), numCategories - 2);
+        intNextPosition = std::min(intCurrentPosition + 1, numCategories - 1);
 
         // Update current values
         float prevValue, nextValue, diff;
         for (auto& row : csv.getRows())
         {
-            prevValue = row.values[intCurrentPosition];
-            // If reached end, there is no value beyond the last
-            if (reachedEnd)
-                nextValue = prevValue;
-            else
-                nextValue = row.values[intCurrentPosition + 1];
+            prevValue = row.values.at(intCurrentPosition);
+            nextValue = row.values.at(intNextPosition);
 
             float diff = nextValue - prevValue;
             // The current value is the previous value plus a fraction of the
