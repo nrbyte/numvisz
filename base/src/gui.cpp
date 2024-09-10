@@ -55,7 +55,11 @@ void GUI::setup(int width, int height, const std::string& title)
     glfwMakeContextCurrent(window);
     gladLoadGL(glfwGetProcAddress);
 
+    // Enable multi sampling
     glEnable(GL_MULTISAMPLE);
+    // Enable blending in GL
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glfwSwapInterval(1);
 

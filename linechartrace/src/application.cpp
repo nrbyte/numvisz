@@ -244,19 +244,6 @@ int Application::run()
         fontRendererLarge.drawMsg(Spacings.beforeLines,
                                   Paddings.aboveLines / 2.0, csv.getName(),
                                   proj);
-        // Draw categories along the bottom
-        fontRenderer.drawMsg(Spacings.beforeLines,
-                             gui.height - Spacings.belowLines +
-                                 Paddings.belowLines * 0.2,
-                             csv.getCategories()[0], proj);
-        const std::string& currentCategory =
-            csv.getCategories()[intCurrentPosition];
-        fontRenderer.drawMsg(gui.width - Spacings.afterLines -
-                                 fontRenderer.getWidthOfMsg(currentCategory),
-                             gui.height - Spacings.belowLines +
-                                 Paddings.belowLines * 0.2,
-                             currentCategory, proj);
-
         // Draw row names and values next to lines
         float nextAvailableY = 0.0f;
         for (auto& line : lines)
@@ -293,6 +280,54 @@ int Application::run()
             gui.height - Spacings.belowLines -
                 (fontRendererSmall.getFontHeight() * 0.5),
             lowestValue, numOfDecimalPlaces, proj);
+
+        // Draw categories along the bottom along with lines
+        // Calculate what the interval should be between categories to ensure it
+        // isn't crowded and categories' names don't overlap
+        int interval = 1;
+        while (true)
+        {
+            // If this interval is larger than the amount of categories,
+            // subtract 1 and don't increase further
+            if (interval > numCategories - 1)
+            {
+                --interval;
+                break;
+            }
+            // Calculate the required X position of the next category to be
+            // displayed
+            float requiredX =
+                (interval / currentPosition) *
+                (gui.width - Spacings.beforeLines - Spacings.afterLines);
+
+            // If the next category's X position leaves enough room from the
+            // first category, then this interval is fine
+            if (requiredX >
+                fontRenderer.getWidthOfMsg(csv.getCategories()[0]) * 2)
+                break;
+
+            // Otherwise, increase the interval and try again
+            interval++;
+        }
+        for (int i = 0; i <= intNextPosition; i += interval)
+        {
+            float percentAcrossLine = (i / currentPosition);
+            if (percentAcrossLine > 1)
+                continue;
+
+            float x = Spacings.beforeLines +
+                      percentAcrossLine * (gui.width - Spacings.beforeLines -
+                                           Spacings.afterLines);
+
+            fontRenderer.drawMsg(
+                x, gui.height - Spacings.belowLines + Paddings.belowLines * 0.2,
+                csv.getCategories()[i], proj);
+
+            renderer.drawBox(x, Spacings.aboveLines, x + 2,
+                             gui.height - Spacings.belowLines,
+                             Color{0, 0, 0, 0.1f}, proj);
+        }
+
         // Advance to the next frame
         gui.nextFrame();
     }
