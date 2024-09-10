@@ -254,7 +254,9 @@ int Application::run()
 
         // Set projection
         math::setOrtho(proj, highestValue + (height * (lineThickness / 2)),
-                       currentTime.count(), lowestValue, 0, -0.1f, -100.0f);
+                       currentTime.count(),
+                       lowestValue - (height * (lineThickness / 2)), 0, -0.1f,
+                       -100.0f);
         // Update viewport to leave space around the lines
         gui.setViewport(Spacings.beforeLines, Spacings.belowLines,
                         gui.width - Spacings.afterLines - Spacings.beforeLines,
