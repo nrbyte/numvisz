@@ -49,6 +49,7 @@ int Application::run()
 
     Timer timer;
     Renderer renderer;
+    FontRenderer fontRendererSmall;
     FontRenderer fontRenderer;
     FontRenderer fontRendererLarge;
     math::Matrix<4, 4> proj;
@@ -75,8 +76,9 @@ int Application::run()
     const std::string& fontName = args.get("-font");
     if (fontName == Arguments::NotSet)
         throw std::runtime_error("Font file not provided");
-    fontRenderer.loadFont(fontName, 18);
-    fontRendererLarge.loadFont(fontName, 26);
+    fontRendererSmall.loadFont(fontName, 10);
+    fontRenderer.loadFont(fontName, 16);
+    fontRendererLarge.loadFont(fontName, 24);
 
     // Padding and Spacing values
     struct
@@ -121,6 +123,7 @@ int Application::run()
     }
 
     // Update spacing based on longest row name
+    float newSpacingBeforeLines;
     float newSpacingAfterLines =
         fontRenderer.getWidthOfMsg(longestRowName) + Paddings.afterLines;
     if (Spacings.afterLines < newSpacingAfterLines)
@@ -132,6 +135,8 @@ int Application::run()
     float highestValue = std::numeric_limits<float>().min(),
           lowestValue = std::numeric_limits<float>().max(), height = 0.0f;
     bool reachedEnd = false;
+    // Text Panel = the row name and value that appears next to the line
+    float textPanelHeight = fontRenderer.getFontHeight() * 1.5;
     // Start the timer and start drawing
     timer.start();
     while (gui.windowStillOpen())
@@ -187,13 +192,25 @@ int Application::run()
             lowestValue = lines.back().currentValue;
         height = highestValue - lowestValue;
 
-        // Update spacing if necessary
+        // Update spacing if necessary (the lowest number can be longer than the
+        // largest number so calculate the max width out of both)
         newSpacingAfterLines =
             Paddings.afterLines +
-            fontRenderer.getWidthOfLongDouble(lines.front().currentValue,
-                                              numOfDecimalPlaces);
-        if (Spacings.afterLines < newSpacingAfterLines)
-            Spacings.afterLines = newSpacingAfterLines;
+            std::max(fontRenderer.getWidthOfLongDouble(
+                         lines.front().currentValue, numOfDecimalPlaces),
+                     fontRenderer.getWidthOfLongDouble(
+                         lines.back().currentValue, numOfDecimalPlaces));
+        newSpacingBeforeLines =
+            Paddings.afterLines +
+            std::max(fontRendererSmall.getWidthOfLongDouble(
+                         lines.front().currentValue, numOfDecimalPlaces),
+                     fontRendererSmall.getWidthOfLongDouble(
+                         lines.back().currentValue, numOfDecimalPlaces));
+
+        Spacings.afterLines =
+            std::max((float)Spacings.afterLines, newSpacingAfterLines);
+        Spacings.beforeLines =
+            std::max((float)Spacings.beforeLines, newSpacingBeforeLines);
 
         // Set projection
         math::setOrtho(proj, highestValue + (height * (lineThickness / 2)),
@@ -268,9 +285,23 @@ int Application::run()
                 textY + fontRenderer.getFontHeight() * 0.8, line.currentValue,
                 numOfDecimalPlaces, proj);
 
-            nextAvailableY = textY + fontRenderer.getFontHeight() * 1.8;
+            nextAvailableY = textY + textPanelHeight;
         }
 
+        // Draw the highest and lowest values along the left side
+        fontRendererSmall.drawLongDouble(
+            Spacings.beforeLines - Paddings.beforeLines * 0.5 -
+                fontRendererSmall.getWidthOfLongDouble(highestValue,
+                                                       numOfDecimalPlaces),
+            Spacings.aboveLines - (fontRendererSmall.getFontHeight() * 0.5),
+            highestValue, numOfDecimalPlaces, proj);
+        fontRendererSmall.drawLongDouble(
+            Spacings.beforeLines - Paddings.beforeLines * 0.5 -
+                fontRendererSmall.getWidthOfLongDouble(lowestValue,
+                                                       numOfDecimalPlaces),
+            gui.height - Spacings.belowLines -
+                (fontRendererSmall.getFontHeight() * 0.5),
+            lowestValue, numOfDecimalPlaces, proj);
         // Advance to the next frame
         gui.nextFrame();
     }
