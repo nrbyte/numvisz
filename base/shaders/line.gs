@@ -7,6 +7,8 @@ layout (triangle_strip, max_vertices = 12) out;
 uniform float aspectRatio;
 uniform float lineThickness;
 
+float miterLengthCap = 0.03;
+
 vec4 V2toV4(vec2 v)
 {
     return vec4(v, 1.0, 1.0);
@@ -67,6 +69,12 @@ void main()
     vec2 intersection = vec2(intersectX,
                              (gradient1 * intersectX) + yintersect1);
 
+    // Cap miter length
+    if (distance(point2, intersection) > miterLengthCap)
+    {
+	intersection = point2 + (normalize(intersection - point2)*miterLengthCap);
+    }
+
     gl_Position = V2toV4(point2up1);
     EmitVertex();
 
@@ -88,6 +96,12 @@ void main()
     intersectX = (yintersect2 - yintersect1) / (gradient1 - gradient2);
     intersection = vec2(intersectX,
                        (gradient1 * intersectX) + yintersect1);
+
+    // Cap miter length
+    if (distance(point2, intersection) > miterLengthCap)
+    {
+	intersection = point2 + (normalize(intersection - point2)*miterLengthCap);
+    }
 
     gl_Position = V2toV4(point2down1);
     EmitVertex();
