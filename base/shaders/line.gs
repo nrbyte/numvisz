@@ -72,7 +72,7 @@ void main()
     // Cap miter length
     if (distance(point2, intersection) > miterLengthCap)
     {
-	intersection = point2 + (normalize(intersection - point2)*miterLengthCap);
+        intersection = point2 + (normalize(intersection - point2)*miterLengthCap);
     }
 
     gl_Position = V2toV4(point2up1);
@@ -100,7 +100,7 @@ void main()
     // Cap miter length
     if (distance(point2, intersection) > miterLengthCap)
     {
-	intersection = point2 + (normalize(intersection - point2)*miterLengthCap);
+        intersection = point2 + (normalize(intersection - point2)*miterLengthCap);
     }
 
     gl_Position = V2toV4(point2down1);
