@@ -93,7 +93,7 @@ int Application::run()
     for (auto& row : csv.getRows())
     {
         currentValues.push_back(
-            {row.name, row.values.front(), Color{1.0f, 1.0f, 1.0f, 1.0f}});
+            {row.name, row.values.front(), Color{0.5f, 0.5f, 0.5f, 1.0f}});
         if (row.name.length() > longestRowName.length())
             longestRowName = row.name;
     }

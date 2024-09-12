@@ -116,7 +116,7 @@ int Application::run()
             x += timePerCategory.count();
         }
         lines.push_back(
-            {row.name, Color{1.0f, 1.0f, 1.0f, 1.0f}, builder.build(), 0.0f});
+            {row.name, Color{0.5f, 0.5f, 0.5f, 1.0f}, builder.build(), 0.0f});
 
         // Update longest row name
         if (row.name.size() > longestRowName.size())
