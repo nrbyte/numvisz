@@ -10,6 +10,8 @@
 #include "viszbase/fontrenderer.hpp"
 #include "viszbase/timer.hpp"
 
+#include "barchart.hpp"
+
 Application::Application(Arguments arg) : args{arg} {}
 
 struct RowState
@@ -22,27 +24,6 @@ struct RowState
     int heightAim;
 };
 
-// Helper function to generate colors for each row
-static void generateColors(std::vector<RowState>& rows)
-{
-    int i = 0;
-    int increment = 3 * (255.0 / rows.size());
-    for (int r = 0; r <= 255; r += increment)
-    {
-        for (int g = 0; g <= 255; g += increment)
-        {
-            for (int b = 0; b <= 255; b += increment)
-            {
-                if (i < rows.size())
-                    rows[i].color =
-                        Color{r / 255.0f, g / 255.0f, b / 255.0f, 1.0f};
-                else
-                    return;
-                ++i;
-            }
-        }
-    }
-}
 
 int Application::run()
 {
@@ -80,31 +61,20 @@ int Application::run()
             80; // Around the time control at the bottom
     } Paddings;
 
-    // Parse the provided CSV
+    // Get the CSV path
     const std::string& fileName = args.get("-csv");
     if (fileName == Arguments::NotSet)
         throw std::runtime_error("CSV file name not provided!");
-    CsvParser csv(fileName);
 
-    // Go through each row, and put in the starting value, and also
-    // get the longest row name, for measurements later in the code
-    std::vector<RowState> currentValues;
-    std::string longestRowName = "";
-    for (auto& row : csv.getRows())
-    {
-        currentValues.push_back(
-            {row.name, row.values.front(), Color{0.1f, 0.1f, 0.8f, 1.0f}});
-        if (row.name.length() > longestRowName.length())
-            longestRowName = row.name;
-    }
+    // Get height of bars from arguments if set, otherwise use a default of 35
+    unsigned barHeight = args.getInt("-barheight", 35);
 
-    // Get height of bars from arguments if set, otherwise use
+    // Get time per category from arguments if set, other use
     // sensible default
-    unsigned barHeight = args.getInt(
-        "-barheight",
-        std::min(40.0, ((gui.height - Spacings.aboveBars - Spacings.belowBars) *
-                        0.9) /
-                           currentValues.size()));
+    Timer::FloatMS timePerCategory{args.getInt("-timepercategory", 2000)};
+
+    // Use the arguments above to create the barchart class
+    BarChart barChart(fileName, timePerCategory, barHeight);
 
     // Load the provided font file
     const std::string& fontName = args.get("-font");
@@ -113,26 +83,20 @@ int Application::run()
     fontRenderer.loadFont(fontName, barHeight * 0.36);
     fontRendererLarge.loadFont(fontName, barHeight * 0.6);
 
-    // Get time per category from arguments if set, other use
-    // sensible default
-    Timer::FloatMS timePerBar{args.getInt("-timepercategory", 2000)};
-
     // Update spacings
     Spacings.beforeBars =
-        Paddings.aroundRowName + fontRenderer.getWidthOfMsg(longestRowName);
+        Paddings.aroundRowName +
+        fontRenderer.getWidthOfMsg(barChart.getLongestRowName());
     Spacings.aboveBars =
         Paddings.aroundTitle + fontRendererLarge.getFontHeight();
     Spacings.belowBars = Paddings.aroundControl + fontRenderer.getFontHeight();
 
     Spacings.beforeControl =
         Paddings.aroundControl +
-        fontRenderer.getWidthOfMsg(csv.getCategories().front());
+        fontRenderer.getWidthOfMsg(barChart.getCategories().front());
     Spacings.afterControl =
         Paddings.aroundControl +
-        fontRenderer.getWidthOfMsg(csv.getCategories().back());
-
-    // Generate colours
-    generateColors(currentValues);
+        fontRenderer.getWidthOfMsg(barChart.getCategories().back());
 
     // Start the timer and start drawing
     timer.start();
@@ -145,84 +109,34 @@ int Application::run()
         math::setOrtho(proj, 0, gui.width, gui.height, 0, -0.1f, -100.0f);
 
         auto currentTime = timer.getInMilliseconds();
-        float currentPosition = currentTime / timePerBar;
 
-        // Don't go past the last category
-        bool reachedEnd = false;
-        if (currentPosition > csv.getCategories().size() - 1)
-        {
-            reachedEnd = true;
-            currentPosition = csv.getCategories().size() - 1;
-        }
+        // 1 - Update bar chart values based on the current time, and the height
+        // of each bar based on the space to leave above the bars respectively
+        barChart.update(currentTime, Spacings.aboveBars);
 
-        // 1 - Draw title and category
+        // 2 - Draw title and category
         fontRendererLarge.drawMsg(Paddings.aroundTitle,
-                                  Paddings.aroundTitle / 2, csv.getName(),
-                                  proj);
+                                  Paddings.aroundTitle / 2.0,
+                                  barChart.getName(), proj);
         fontRendererLarge.drawMsg(
             gui.width - Paddings.aroundTitle -
-                fontRendererLarge.getWidthOfMsg(
-                    csv.getCategories()[int(currentPosition)]),
-            Paddings.aroundTitle / 2, csv.getCategories()[int(currentPosition)],
-            proj);
+                fontRendererLarge.getWidthOfMsg(barChart.getCurrentCategory()),
+            Paddings.aroundTitle / 2.0, barChart.getCurrentCategory(), proj);
 
-        // 2 - Calculate the current row state (the values for each row)
-        for (auto& row : csv.getRows())
-        {
-            long double currentValue = 0.0;
-            if (reachedEnd)
-                // If we've reached the end, each row should display its last
-                // value
-                currentValue = row.values[csv.getCategories().size() - 1];
-            else
-            {
-                // Get the values based on the 2 categories we're inbetween
-                long double baseValue = row.values[int(currentPosition)];
-                long double nextValue = row.values[int(currentPosition + 1)];
-                long double diff = nextValue - baseValue;
-                // The current value is the current category's value plus
-                // a percentage amount of the difference between this cateogory
-                // and the next. Therefore, it gives the view that we're
-                // animating towards the next value.
-                currentValue =
-                    baseValue +
-                    (diff * (currentPosition - int(currentPosition)));
-            }
-
-            // Update the row's current value
-            std::find_if(currentValues.begin(), currentValues.end(),
-                         [&](const auto& x) { return x.name == row.name; })
-                ->value = currentValue;
-        }
-
-        // 3 - Sort the bars by their values
-        std::sort(currentValues.begin(), currentValues.end(),
-                  [](const auto& x, const auto& y)
-                  { return x.value > y.value; });
-
-        // 4 - Adjust spacing
+        // 3 - Adjust spacing
         float newAfterBarsValue =
             Paddings.aroundRowValue +
-            fontRenderer.getWidthOfLongDouble(currentValues.front().value,
+            fontRenderer.getWidthOfLongDouble(barChart.getHighestValue(),
                                               numOfDecimalPlaces);
         // Only increase the spacing if more space is required
         if (newAfterBarsValue > Spacings.afterBars)
             Spacings.afterBars = newAfterBarsValue;
 
-        // 5 - Update the heights of the rows
-        for (int i = 0; i < currentValues.size(); i++)
-        {
-            RowState& rs = currentValues[i];
-            rs.heightAim = Spacings.aboveBars + (i * (barHeight + 10));
-            if (rs.currentHeight == 0)
-                rs.currentHeight = rs.heightAim;
-        }
-        long double highestValue = currentValues.front().value;
-
-        // 6 - draw background lines to better indicate how the bars are moving
+        // 4 - draw background lines to better indicate how the bars are moving
         // Calculate the values the lines will be at by using log10, therefore,
         // a value like 35,000 will have lines every 10,000 (through the integer
         // conversion).
+        long double highestValue = barChart.getHighestValue();
         long double lineSeperation =
             std::pow(10, (int)std::log10(highestValue));
         int amountOfLines = highestValue / lineSeperation;
@@ -253,10 +167,10 @@ int Application::run()
                              Color{0, 0, 0, 0.3}, proj);
         }
 
-        // 7 - draw the rows and their surrounding text
+        // 5 - draw the rows and their surrounding text
         // Used below to make the font draw in the middle of the bar
         long fontHeightSpacing = (barHeight - fontRenderer.getFontHeight()) / 2;
-        for (auto& row : currentValues)
+        for (auto& row : barChart.getRowStates())
         {
             if (row.currentHeight + barHeight <
                 (gui.height - Spacings.belowBars))
@@ -282,17 +196,9 @@ int Application::run()
                     row.currentHeight + fontHeightSpacing, row.value,
                     numOfDecimalPlaces, proj);
             }
-
-            // Update the heights
-            int diff = row.heightAim - row.currentHeight;
-            // Make sure numbers like 0.4 and -0.2 are rounded to 1 and
-            // -1 respectively, as by default they'd be truncated to 0 - which
-            // will cause the difference in height to remain and not shrink
-            row.currentHeight +=
-                (diff < 0) ? std::floor(diff / 5.0) : std::ceil(diff / 5.0);
         }
 
-        // 8 - Draw time control
+        // 6 - Draw time control
         float controlX2 = gui.width - Spacings.afterControl;
         float controlWidth =
             gui.width - Spacings.beforeControl - Spacings.afterControl;
@@ -303,12 +209,13 @@ int Application::run()
         fontRenderer.drawMsg(
             Spacings.beforeControl +
                 (controlWidth *
-                 std::min(1.0f, (currentTime /
-                                 (csv.getCategories().size() * timePerBar)))),
+                 std::min(1.0f,
+                          (currentTime / (barChart.getCategories().size() *
+                                          timePerCategory)))),
             gui.height - Spacings.belowBars * 0.72,
-            csv.getCategories()[currentPosition], proj);
+            barChart.getCurrentCategory(), proj);
 
-        // 9 - Handle mouse input, draw the category the mouse is over if it is
+        // 7 - Handle mouse input, draw the category the mouse is over if it is
         // in range, and handle when the mouse is clicked
         float percentOfControl =
             (gui.mouseX - Spacings.beforeControl) / controlWidth;
@@ -322,8 +229,8 @@ int Application::run()
             // calculated above this if statement), and multiplying it by the
             // total amount of categories
             const std::string& hoverCategory =
-                csv.getCategories()[(csv.getCategories().size() - 1) *
-                                    percentOfControl];
+                barChart.getCategories()[(barChart.getCategories().size() - 1) *
+                                         percentOfControl];
             // Draw the category just above the time control
             fontRenderer.drawMsg(gui.mouseX,
                                  gui.height - Spacings.belowBars * 0.8 -
@@ -343,7 +250,7 @@ int Application::run()
         if (timer.isStopped())
         {
             timer.setTime(Timer::FloatMS{
-                (timePerBar * csv.getCategories().size()) *
+                (timePerCategory * barChart.getCategories().size()) *
                 std::min(1.0f, std::max(0.0f, percentOfControl))});
         }
         // If the user is not holding down their mouse, the timer should not
