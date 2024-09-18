@@ -15,6 +15,7 @@ public:
     const std::string& getName() { return parser.getName(); }
     const std::string& getLongestRowName() { return longestRowName; }
     const long double& getHighestValue() { return highestValue; }
+    const float& getCurrentPosition() { return currentPosition; }
     const std::vector<std::string>& getCategories()
     {
         return parser.getCategories();
@@ -38,6 +39,7 @@ private:
     std::string longestRowName;
     long double highestValue;
     std::string currentCategory;
+    float currentPosition;
 
     CsvParser parser;
     Timer::FloatMS timePerCategory;

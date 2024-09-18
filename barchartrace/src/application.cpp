@@ -206,14 +206,13 @@ int Application::run()
                          gui.height - Spacings.belowBars * 0.8, controlX2,
                          gui.height - Spacings.belowBars * 0.75,
                          Color{0, 0, 0, 1}, proj);
-        fontRenderer.drawMsg(
-            Spacings.beforeControl +
-                (controlWidth *
-                 std::min(1.0f,
-                          (currentTime / (barChart.getCategories().size() *
-                                          timePerCategory)))),
-            gui.height - Spacings.belowBars * 0.72,
-            barChart.getCurrentCategory(), proj);
+        // Draw the current category underneath the time control
+        float currentCategoryPercent = barChart.getCurrentPosition() /
+                                       (barChart.getCategories().size() - 1);
+        fontRenderer.drawMsg(Spacings.beforeControl +
+                                 (controlWidth * currentCategoryPercent),
+                             gui.height - Spacings.belowBars * 0.72,
+                             barChart.getCurrentCategory(), proj);
 
         // 7 - Handle mouse input, draw the category the mouse is over if it is
         // in range, and handle when the mouse is clicked
@@ -228,9 +227,8 @@ int Application::run()
             // mouse is on the time control as a percentage (percentOfControl,
             // calculated above this if statement), and multiplying it by the
             // total amount of categories
-            const std::string& hoverCategory =
-                barChart.getCategories()[(barChart.getCategories().size() - 1) *
-                                         percentOfControl];
+            const std::string& hoverCategory = barChart.getCategories().at(
+                (barChart.getCategories().size() - 1) * percentOfControl);
             // Draw the category just above the time control
             fontRenderer.drawMsg(gui.mouseX,
                                  gui.height - Spacings.belowBars * 0.8 -
@@ -250,7 +248,7 @@ int Application::run()
         if (timer.isStopped())
         {
             timer.setTime(Timer::FloatMS{
-                (timePerCategory * barChart.getCategories().size()) *
+                (timePerCategory * (barChart.getCategories().size() - 1)) *
                 std::min(1.0f, std::max(0.0f, percentOfControl))});
         }
         // If the user is not holding down their mouse, the timer should not

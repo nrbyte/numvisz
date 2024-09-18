@@ -44,7 +44,7 @@ void BarChart::update(Timer::FloatMS currentTime, unsigned spacingAboveBars)
     int numCategories = getCategories().size();
 
     // Calculate the current position and next position.
-    float currentPosition =
+    currentPosition =
         std::min(currentTime / timePerCategory, float(numCategories - 1));
     int intPrevPosition = std::min(int(currentPosition), numCategories - 2);
     int intNextPosition = std::min(intPrevPosition + 1, numCategories - 1);
