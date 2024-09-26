@@ -1,5 +1,6 @@
 #include "viszbase/csvparser.hpp"
 
+#include <string>
 #include <fstream>
 #include <algorithm>
 #include <locale>
@@ -18,20 +19,45 @@ CsvParser::CsvParser(const std::string& fileName)
 
     try
     {
+        std::string::iterator it, prevIt;
+
         // Read in the categories row
         std::getline(csvFile, line);
 
-        // Read in the title
-        auto it = std::find(line.begin(), line.end(), ',');
-        name = std::string(line.begin(), it);
-        // Read in the categories
-        auto prevIt = it;
+        // Read in the title, bearing in mind it could be in double quotes
+        if (*line.begin() == '"')
+        {
+            it = std::find(line.begin() + 1, line.end(), '"');
+            name = std::string(line.begin() + 1, it);
+            prevIt = it + 1;
+        }
+        else
+        {
+            it = std::find(line.begin(), line.end(), ',');
+            name = std::string(line.begin(), it);
+            prevIt = it;
+        }
+
+        // Read in the categories, accounting for double quotes
         while (it != line.end())
         {
-            it = std::find(prevIt + 1, line.end(), ',');
-            std::string category(prevIt + 1, it);
+            // If theres a quotation mark present, look for the closing
+            // quotation mark, not a comma, and then add 1 to get to the
+            // comma after it (or line.end())
+            std::string category;
+            if ((prevIt + 1) != line.end() && *(prevIt + 1) == '"')
+            {
+                it = 1 + std::find(prevIt + 2, line.end(), '"');
+                category = std::string(prevIt + 2, it - 1);
+            }
+            else
+            {
+                it = std::find(prevIt + 1, line.end(), ',');
+                category = std::string(prevIt + 1, it);
+            }
+
             if (!category.empty())
-                categories.push_back(std::string(prevIt + 1, it));
+                categories.push_back(category);
             else
                 throw std::exception();
 
@@ -43,9 +69,17 @@ CsvParser::CsvParser(const std::string& fileName)
         {
             Row r;
 
-            // Read in the title
-            auto it = std::find(line.begin(), line.end(), ',');
-            r.name = std::string(line.begin(), it);
+            // Read in the title, accounting for quotation marks
+            if (*line.begin() == '"')
+            {
+                it = 1 + std::find(line.begin() + 1, line.end(), '"');
+                r.name = std::string(line.begin() + 1, it - 1);
+            }
+            else
+            {
+                it = std::find(line.begin(), line.end(), ',');
+                r.name = std::string(line.begin(), it);
+            }
 
             // If the row's first column is empty, skip the row
             if (r.name.empty())
@@ -58,20 +92,20 @@ CsvParser::CsvParser(const std::string& fileName)
                 // If theres a quotation mark present, look for the closing
                 // quotation mark, not a comma, and then add 1 to get to the
                 // comma after it (or line.end())
+                std::string value;
                 if ((prevIt + 1) != line.end() && *(prevIt + 1) == '"')
+                {
                     it = 1 + std::find(prevIt + 2, line.end(), '"');
+                    value = std::string(prevIt + 2, it - 1);
+                }
                 else
+                {
                     it = std::find(prevIt + 1, line.end(), ',');
+                    value = std::string(prevIt + 1, it);
+                }
 
-                std::string value(prevIt + 1, it);
                 if (!value.empty())
                 {
-                    if (value[0] == '"')
-                    {
-                        value.erase(value.begin());
-                        value.erase(value.end() - 1);
-                    }
-
                     is.clear();
                     is.str(value);
                     long double ld;
