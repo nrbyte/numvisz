@@ -332,6 +332,19 @@ int Application::run()
                 (fontRendererSmall.getFontHeight() * 0.5),
             lowestValue, numOfDecimalPlaces, proj);
 
+        // If highest value > 0, and lowest value < 0, draw the 0
+        if (highestValue > 0 && lowestValue < 0)
+        {
+            fontRendererSmall.drawLongDouble(
+                Spacings.beforeLines - Paddings.beforeLines * 0.5 -
+                    fontRendererSmall.getWidthOfLongDouble(0, 0),
+                Spacings.aboveLines - fontRendererSmall.getFontHeight() * 0.5 +
+                    (1 - (-lowestValue / height)) *
+                        (gui.height - Spacings.aboveLines -
+                         Spacings.belowLines),
+                0, 0, proj);
+        }
+
         // Advance to the next frame
         gui.nextFrame();
     }
