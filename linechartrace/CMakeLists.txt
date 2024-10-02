@@ -5,6 +5,9 @@ target_sources(numvisz_linechartrace PRIVATE
   src/main.cpp
   src/application.cpp
   src/application.hpp
+
+  src/linechart.hpp
+  src/linechart.cpp
 )
 
 target_include_directories(numvisz_linechartrace PRIVATE src)
