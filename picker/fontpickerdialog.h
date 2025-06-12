@@ -9,21 +9,30 @@ namespace Ui
 class FontPickerDialog;
 }
 
+struct FontListing
+{
+    QString filePath;
+    QString fontSubfamily;
+};
+
+using FontMap = QMap<QString, QList<FontListing>>;
+
 class FontPickerDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit FontPickerDialog(
-        std::shared_ptr<QMap<QString, QList<QString>>>& fonts,
-        QWidget* parent = nullptr);
+    explicit FontPickerDialog(std::shared_ptr<FontMap>& fonts,
+                              QWidget* parent = nullptr);
     ~FontPickerDialog();
 
-    QString selectedFontFile;
+    FontListing selectedFontFile;
+
+    static std::shared_ptr<FontMap> loadFonts();
 
 private:
     Ui::FontPickerDialog* ui;
-    std::shared_ptr<QMap<QString, QList<QString>>> loadedFonts;
+    std::shared_ptr<FontMap> loadedFonts;
 
 private slots:
     void fontFamilyClicked(QListWidgetItem*);

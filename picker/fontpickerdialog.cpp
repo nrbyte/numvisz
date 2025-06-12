@@ -5,10 +5,17 @@
 
 #include <QPushButton>
 
-#include <iostream>
+#include <ft2build.h>
+#include <freetype/freetype.h>
+#include <freetype/ftsnames.h>
+#include <freetype/ttnameid.h>
 
-FontPickerDialog::FontPickerDialog(
-    std::shared_ptr<QMap<QString, QList<QString>>>& fonts, QWidget* parent)
+#include <QStringConverter>
+#include <QStandardPaths>
+#include <QDirIterator>
+
+FontPickerDialog::FontPickerDialog(std::shared_ptr<FontMap>& fonts,
+                                   QWidget* parent)
     : QDialog(parent), ui(new Ui::FontPickerDialog), loadedFonts(fonts)
 {
     ui->setupUi(this);
@@ -31,16 +38,104 @@ FontPickerDialog::FontPickerDialog(
 
 FontPickerDialog::~FontPickerDialog() { delete ui; }
 
+static QString loadSfntString(FT_UShort platformId, FT_UShort encodingId,
+                              QByteArray characters)
+{
+    // Load the string from the SFNT table, changing the method based
+    // on the encoding.
+    //
+    // NOTE: Only a few platforms/encoding combinations are supported
+    //       here, an emptry string is returned if we were unable to
+    //       decode it.
+    QString str = "";
+    if (platformId == 0)
+    {
+        // Apple Unicode
+        auto toQt = QStringDecoder(QStringDecoder::Utf16BE);
+        str = toQt(characters);
+    }
+    else if (platformId == 1)
+    {
+        // Macintosh
+        str = QString(characters);
+    }
+    else if (platformId == 3)
+    {
+        // Microsoft
+        auto toQt = QStringDecoder(QStringDecoder::Utf16BE);
+        str = toQt(characters);
+    }
+    return str;
+}
+
+std::shared_ptr<FontMap> FontPickerDialog::loadFonts()
+{
+    // Initialise Freetype
+    FT_Library library;
+    FT_Init_FreeType(&library);
+
+    auto loadedFonts = std::make_shared<FontMap>();
+
+    // Go through every font in the system font directories
+    QStringList fontLocations =
+        QStandardPaths::standardLocations(QStandardPaths::FontsLocation);
+    for (auto& path : fontLocations)
+    {
+        QDirIterator iter(path, QDirIterator::Subdirectories);
+        while (iter.hasNext())
+        {
+            QString filePath = iter.next();
+
+            if (filePath.endsWith(".ttf") || filePath.endsWith(".otf"))
+            {
+                // We have found a font file, load it into Freetype
+                FT_Face face;
+                FT_New_Face(library, filePath.toStdString().c_str(), 0, &face);
+
+                // Load the Font Family entry of the SFNT table
+                FT_SfntName sfnt;
+                FT_Get_Sfnt_Name(face, TT_NAME_ID_FONT_FAMILY, &sfnt);
+                QString familyName = loadSfntString(
+                    sfnt.platform_id, sfnt.encoding_id,
+                    QByteArray((const char*)sfnt.string, sfnt.string_len));
+
+                // Load the Font type (e.g. Bold, Italic, etc.) from the SFNT
+                // table
+                FT_Get_Sfnt_Name(face, TT_NAME_ID_FONT_SUBFAMILY, &sfnt);
+                QString fontType = loadSfntString(
+                    sfnt.platform_id, sfnt.encoding_id,
+                    QByteArray((const char*)sfnt.string, sfnt.string_len));
+
+                // Unload the font
+                FT_Done_Face(face);
+
+                if (!(familyName.isEmpty() || fontType.isEmpty()))
+                {
+                    // Only add the font if we were able to successfully decode
+                    // the family name and font type
+
+                    // Add the font to the font mapping
+                    (*loadedFonts)[familyName].push_back(
+                        FontListing{filePath, fontType});
+                }
+            }
+        }
+    }
+
+    FT_Done_FreeType(library);
+
+    return loadedFonts;
+}
+
 void FontPickerDialog::fontFamilyClicked(QListWidgetItem* item)
 {
     // Based on the font family clicked, display all font files from that family
-    QList<QString> files = ((*loadedFonts)[item->text()]);
+    QList<FontListing> listings = ((*loadedFonts)[item->text()]);
 
     ui->listFiles->clear();
-    for (auto& file : files)
+    for (auto& listing : listings)
     {
-        QFileInfo info(file);
-        ui->listFiles->addItem(info.baseName());
+        ui->listFiles->addItem(listing.fontSubfamily);
     }
 
     // Disable the OK button, as it might have already been enabled from

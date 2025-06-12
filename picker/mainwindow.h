@@ -8,6 +8,7 @@
 #include <QStringList>
 
 #include "visualizationsdao.h"
+#include "fontpickerdialog.h"
 
 #include <memory>
 
@@ -29,7 +30,7 @@ public:
 private:
     Ui::MainWindow* ui;
     VisualizationsDao* viszDao;
-    std::shared_ptr<QMap<QString, QList<QString>>> loadedFonts;
+    std::shared_ptr<FontMap> loadedFonts;
 
     VisualizationEntry currentlySelected;
 

@@ -17,12 +17,11 @@
 #include <QStandardPaths>
 #include <QDesktopServices>
 
-#include <iostream>
-
 #include "visualizationsdao.h"
 #include "adddialog.h"
 #include "fontpickerdialog.h"
 #include "csvhelpdialog.h"
+
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow),
@@ -62,30 +61,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Load fonts available in system directories
     // Group font files by family
-    loadedFonts = std::make_shared<QMap<QString, QList<QString>>>();
-    QStringList fontLocations =
-        QStandardPaths::standardLocations(QStandardPaths::FontsLocation);
-    for (auto& path : fontLocations)
-    {
-        QDirIterator iter(path, QDirIterator::Subdirectories);
-        while (iter.hasNext())
-        {
-            QString filePath = iter.next();
-            if (filePath.endsWith(".ttf") || filePath.endsWith(".otf"))
-            {
-                // Get the family of the font
-                int id = QFontDatabase::addApplicationFont(filePath);
-                QStringList families =
-                    QFontDatabase::applicationFontFamilies(id);
-
-                // Add the file to the respective families
-                for (auto& family : families)
-                {
-                    (*loadedFonts)[family].push_back(filePath);
-                }
-            }
-        }
-    }
+    loadedFonts = FontPickerDialog::loadFonts();
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -188,7 +164,7 @@ void MainWindow::changeFont()
     FontPickerDialog fontPicker(loadedFonts);
     if (fontPicker.exec() == QDialog::Accepted)
     {
-        currentlySelected.fontPath = fontPicker.selectedFontFile;
+        currentlySelected.fontPath = fontPicker.selectedFontFile.filePath;
         QFileInfo info(currentlySelected.fontPath);
         ui->fontButton->setText(info.baseName());
     }

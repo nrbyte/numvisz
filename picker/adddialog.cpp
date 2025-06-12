@@ -10,7 +10,7 @@
 
 #include "fontpickerdialog.h"
 
-AddDialog::AddDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts,
+AddDialog::AddDialog(std::shared_ptr<FontMap>& fonts,
                      QWidget* parent)
     : QDialog{parent}, ui(new Ui::AddDialog), loadedFonts(fonts)
 {
@@ -59,8 +59,8 @@ void AddDialog::chooseFont()
     FontPickerDialog dialog(loadedFonts, this);
     if (dialog.exec() == QDialog::Accepted)
     {
-        QFileInfo fileInfo(dialog.selectedFontFile);
+        QFileInfo fileInfo(dialog.selectedFontFile.filePath);
         ui->fontButton->setText("You picked: " + fileInfo.baseName());
-        fontPath = dialog.selectedFontFile;
+        fontPath = dialog.selectedFontFile.filePath;
     }
 }

@@ -32,6 +32,14 @@ endif()
 
 target_link_libraries(numvisz PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql)
 
+# Find and include freetype
+find_package(Freetype)
+if (NOT ${FREETYPE_FOUND})
+  message(FATAL_ERROR "Freetype not found on system! You can use vcpkg (JSON manifest already provided), or provide the dependency another way.")
+endif()
+target_link_libraries(numvisz PRIVATE ${FREETYPE_LIBRARIES})
+target_include_directories(numvisz PUBLIC ${FREETYPE_INCLUDE_DIRS})
+
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.

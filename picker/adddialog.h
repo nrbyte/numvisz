@@ -4,6 +4,7 @@
 #include <QDialog>
 
 #include "visualizationsdao.h"
+#include "fontpickerdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -16,7 +17,7 @@ class AddDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit AddDialog(std::shared_ptr<QMap<QString, QList<QString>>>& fonts,
+    explicit AddDialog(std::shared_ptr<FontMap>& fonts,
                        QWidget* parent = nullptr);
     ~AddDialog();
 
@@ -28,7 +29,7 @@ private:
     QString csvPath;
     QString fontPath;
 
-    std::shared_ptr<QMap<QString, QList<QString>>> loadedFonts;
+    std::shared_ptr<FontMap> loadedFonts;
 
     // QDialog interface
 public slots:
