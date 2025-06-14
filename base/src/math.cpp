@@ -33,3 +33,13 @@ void math::setScale(Matrix<4, 4>& m, float x, float y, float z)
     m.put(2, 2, z);
     m.put(3, 3, 1);
 }
+
+void math::setRotateZ(Matrix<4, 4>& m, float theta)
+{
+    math::setIdentity(m);
+
+    m.put(0, 0, std::cos(theta));
+    m.put(0, 1, -std::sin(theta));
+    m.put(1, 0, std::sin(theta));
+    m.put(1, 1, std::cos(theta));
+}

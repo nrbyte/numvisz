@@ -34,6 +34,7 @@ void setOrtho(Matrix<4, 4>& m, float top, float right, float bottom, float left,
               float near, float far);
 void setTranslate(Matrix<4, 4>& m, float x, float y, float z);
 void setScale(Matrix<4, 4>& m, float x, float y, float z);
+void setRotateZ(Matrix<4, 4>& m, float theta);
 } // namespace math
 
 // Operator overloads

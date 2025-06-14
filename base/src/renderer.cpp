@@ -53,3 +53,28 @@ void Renderer::drawBox(float x, float y, float x1, float y1, Color color,
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
+
+void Renderer::drawLine(float x, float y, float x1, float y1, float thickness,
+                        Color color, math::Matrix<4, 4>& projection)
+{
+    glUseProgram(rectShader.getProgram());
+    // Calculate angle and length of line
+    float adj = std::abs(x1 - x), opp = std::abs(y1 - y);
+    float angle = std::atan(opp / adj);
+    float length = std::sqrt(adj * adj + opp * opp);
+    // Setup matrices
+    math::setTranslate(translate, x, y, 0.0f);
+    math::setScale(scale, length, thickness, 1.0f);
+    math::setRotateZ(rotate, angle);
+    result = projection * translate * rotate * scale;
+    // Send data to shader
+    glUniformMatrix4fv(rectShader.getUniformLocation("matrix"), 1, GL_TRUE,
+                       *result);
+    glUniform4f(rectShader.getUniformLocation("color"), color.r, color.g,
+                color.b, color.a);
+
+    // Draw the line
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}

@@ -13,6 +13,8 @@ public:
 
     void drawBox(float x, float y, float x1, float y1, Color color,
                  math::Matrix<4, 4>& projection);
+    void drawLine(float x, float y, float x1, float y1, float thickness,
+                  Color color, math::Matrix<4, 4>& projection);
 
 private:
     unsigned VAO, VBO;
@@ -20,6 +22,7 @@ private:
 
     math::Matrix<4, 4> translate;
     math::Matrix<4, 4> scale;
+    math::Matrix<4, 4> rotate;
     math::Matrix<4, 4> result;
 };
 #endif

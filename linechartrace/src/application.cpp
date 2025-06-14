@@ -59,7 +59,7 @@ int Application::run()
         unsigned beforeLines = 30;
         unsigned aboveLines = 30;
         unsigned belowLines = 30;
-        unsigned afterLines = 30;
+        unsigned afterLines = 50;
     } Paddings;
     struct
     {
@@ -214,18 +214,26 @@ int Application::run()
         float nextAvailableY = 0.0f;
         for (auto& line : lineChart.getLineStates())
         {
-            float textY =
+            float lineY =
                 Spacings.aboveLines - fontRenderer.getFontHeight() * 0.5 +
                 (1 - (line.currentValue - lowestValue) / height) *
                     (gui.height - Spacings.aboveLines - Spacings.belowLines);
-            if (textY < nextAvailableY)
-                textY = nextAvailableY;
+            float textY;
+            textY = std::max(lineY, nextAvailableY);
+
+            // Draw a line from the value line to the text
+            renderer.drawLine(
+                gui.width - Spacings.afterLines + Paddings.afterLines * 0.05,
+                lineY + fontRenderer.getFontHeight() / 2,
+                gui.width - Spacings.afterLines + Paddings.afterLines * 0.35,
+                textY + fontRenderer.getFontHeight() / 2, 2.0,
+                Color{0.3f, 0.3f, 0.3f, 0.3f}, proj);
 
             fontRenderer.drawMsg(gui.width - Spacings.afterLines +
-                                     Paddings.afterLines * 0.2,
+                                     Paddings.afterLines * 0.4,
                                  textY, line.name, proj);
             fontRenderer.drawLongDouble(
-                gui.width - Spacings.afterLines + Paddings.afterLines * 0.2,
+                gui.width - Spacings.afterLines + Paddings.afterLines * 0.4,
                 textY + fontRenderer.getFontHeight() * 0.8, line.currentValue,
                 numOfDecimalPlaces, proj);
 
