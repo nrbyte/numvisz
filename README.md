@@ -20,7 +20,7 @@ Below are some photos showing what the program looks like. When you use the prog
 
 
 ## Structure
-The project has 4 CMake targets, the Numvisz picker GUI executable (allows visualizations to be picked), the visualization base shared library, the barchartrace executable, and the linechartrace executable. The picker GUI tool launches the other executables with the necessary command line arguments. The root CMakeLists configures the exeuctables to be placed next to eachother in a bin directory within the build directory, so that the GUI can launch the others.
+The project has 4 CMake targets, the Numvisz picker GUI executable (allows visualizations to be picked), the visualization base shared library, the barchartrace executable, and the linechartrace executable. The picker GUI tool launches the other executables with the necessary command line arguments. The root CMakeLists configures the executables to be placed next to eachother in a bin directory within the build directory, so that the GUI can launch the others.
 
 ## Code style
 The project's code style is specified using clang-format to be based on the LLVM style, plus the following modifications: braces on seperate lines, * and & to appear next to the type rather than the name, indentation to be of width 4, and access modifiers to have no space infront of them.
