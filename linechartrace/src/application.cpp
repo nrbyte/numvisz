@@ -214,9 +214,24 @@ int Application::run()
         float nextAvailableY = 0.0f;
         for (auto& line : lineChart.getLineStates())
         {
+            // The thickness of the line is roughly the line thickness as a
+            // proportion of the pixels allocated to the line visualization.
+            // It is divided by 2 for convenience (often want to put something
+            // in the middle of the line)
+            float realLineThickness =
+                ((gui.height - Spacings.belowLines - Spacings.aboveLines) *
+                 lineThickness) /
+                2;
+
+            float realLineY =
+                Spacings.aboveLines + realLineThickness +
+                (1 - (line.currentValue - lowestValue) / (height)) *
+                    (gui.height - Spacings.aboveLines - Spacings.belowLines -
+                     realLineThickness * 2);
+
             float lineY =
                 Spacings.aboveLines - fontRenderer.getFontHeight() * 0.5 +
-                (1 - (line.currentValue - lowestValue) / height) *
+                (1 - (line.currentValue - lowestValue) / (height)) *
                     (gui.height - Spacings.aboveLines - Spacings.belowLines);
             float textY;
             textY = std::max(lineY, nextAvailableY);
@@ -224,7 +239,7 @@ int Application::run()
             // Draw a line from the value line to the text
             renderer.drawLine(
                 gui.width - Spacings.afterLines + Paddings.afterLines * 0.05,
-                lineY + fontRenderer.getFontHeight() / 2,
+                realLineY,
                 gui.width - Spacings.afterLines + Paddings.afterLines * 0.35,
                 textY + fontRenderer.getFontHeight() / 2, 2.0,
                 Color{0.3f, 0.3f, 0.3f, 0.3f}, proj);
