@@ -10,7 +10,9 @@ Below are some photos showing what the program looks like. When you use the prog
 <p align="center">
 <img src="https://github.com/user-attachments/assets/5f023c0c-e721-49b5-ad2d-6ec57fe6e639" />
 <img src="https://github.com/user-attachments/assets/dc416532-fcb5-4efc-bf25-e30b8b973dda" />
+
  NOTE: Data is GDP per capita, PPP (constant 2021 international $) for a select few countries shown in the picture. Sourced from the World Bank [here](https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.KD?locations=US-DE-FR-JP-GB-CA-IT-EU)
+
 <img src="https://github.com/user-attachments/assets/7fc4b138-56db-4849-b1ad-95149f5c5a04" />
  NOTE: Data is random numbers - not from a real dataset.
 </p>
